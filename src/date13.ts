@@ -214,6 +214,8 @@ export class Date13 {
 
 const isoPattern = `{utcfullyear}-{utcmonth_pad2}-{utcdate_pad2}T{utchour_pad2}-{utcminute_pad2}-{utcsecond_pad2}.{utcmilis_pad3}Z`;
 
+const isoRegexp = /^\d{4}-\d{1,2}-\d{1,2}/i;
+
 function getReplacersFromDate(date: Date13 | Date) {
   const padStart_2_0 = (val: any) => String(val).padStart(2, '0');
   const padEnd_3_0 = (val: any) => String(val).padEnd(3, '0');
@@ -253,21 +255,84 @@ function toDate13ISOString(date: Date13 | Date) {
   return transformedPattern;
 }
 
-function fromGregorian (date: Date): { year: number, month: number, date: number} {
-  // TODO implement
-  throw new Error('Not implemented');
-}
-
 function fromDate13ISOString(str: string): Date13 {
   if (typeof str != 'string') {
     throw new TypeError('Argument must be a string');
   }
 
-  const d13Regexp = /^\d{4}-\d{2}-\d{2}/i;
-
-  if (d13Regexp.test(str)) {
-    throw new Error('Not implemented');
-  } else {
-    throw new Error('Invalid ISO string');
+  if (!isoRegexp.test(str)) {
+    return new Date13(Date.parse(str));
   }
+
+  const match = /^(\d{4})-(\d{1,2})-(\d{1,2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?)?(Z)?$/.exec(iso);
+
+  if (!match) throw new Error("Invalid Date13 ISO string");
+
+  const [, yearStr, monthStr, dayStr, h, m, s, ms, z] = match;
+
+  const year = parseInt(yearStr);
+  const month = parseInt(monthStr) - 1;
+  const day = parseInt(dayStr);
+
+  let hours = h !== undefined ? parseInt(h) : 0;
+  let minutes = m !== undefined ? parseInt(m) : 0;
+  let seconds = s !== undefined ? parseInt(s) : 0;
+  let milliseconds = ms !== undefined ? parseInt(ms.padEnd(3, "0")) : 0;
+
+  if (!z) {
+    const local = new Date(year, month, day, hours, minutes, seconds, milliseconds);
+    hours = local.getUTCHours();
+    minutes = local.getUTCMinutes();
+    seconds = local.getUTCSeconds();
+    milliseconds = local.getUTCMilliseconds();
+  }
+
+  return new Date13(year, month, day, hours, minutes, seconds, milliseconds);
 }
+
+function fromGregorian (date: Date): { year: number, month: number, date: number} {
+  const daysSinceEpoch = getDaysSinceEpoch(date);
+
+  let year = unixEpochYear;
+  let dayOfYear = daysSinceEpoch;
+
+  while (true) {
+    const daysInYear = getDaysInYear(year);
+    if (dayOfYear < daysInYear) break;
+    dayOfYear -= daysInYear;
+    year++;
+  }
+
+  const months = Array(12).fill(28);
+  const isLeap = Date13.isLeapYear(year);
+  months.push(isLeap ? 30 : 29);
+
+  let month = 0;
+  while (dayOfYear >= months[month]) {
+    dayOfYear -= months[month];
+    month++;
+  }
+
+  const day = dayOfYear + 1;
+
+  return new Date13(year, month, day, date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+}
+
+function isLeapYear(year: number): boolean {
+  return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+}
+
+const unixEpochYear = 1970;
+function getDaysInYear(year: number) {
+  return isLeapYear(year) ? 366 : 365;
+}
+
+function getDaysSinceEpoch(date: Date): number {
+  const epoch = Date.UTC(unixEpochYear, 0, 1);
+
+  const utc = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+
+  return Math.floor((utc - epoch) / 86400000);
+}
+
+
