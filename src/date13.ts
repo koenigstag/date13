@@ -36,6 +36,7 @@ export class Date13 {
     this.year;
   }
 
+  // range 0-12 
   public getUTCMonth() {
     this.month;
   }
@@ -50,6 +51,42 @@ export class Date13 {
 
   public getQuarter() {
     return Math.floor(this.month / 3.25) + 1;
+  }
+
+  public getHours() {
+    return this.base.getHours();
+  }
+
+  public getMinutes() {
+    return this.base.getMinutes();
+  }
+
+  public getSeconds() {
+    return this.base.getSeconds();
+  }
+
+  public getMiliseconds() {
+    return this.base.getMiliseconds();
+  }
+
+  public getUTCHours() {
+    return this.base.getUTCHours();
+  }
+
+  public getUTCMinutes() {
+    return this.base.getUTCMinutes();
+  }
+
+  public getUTCSeconds() {
+    return this.base.getUTCSeconds();
+  }
+
+  public getUTCMiliseconds() {
+    return this.base.getUTCMiliseconds();
+  }
+
+  public getTimezoneOffset() {
+    return this.base.getTimezoneOffset();
   }
 
   public getTime() {
@@ -175,6 +212,47 @@ export class Date13 {
   }
 }
 
+const isoPattern = `{utcfullyear}-{utcmonth_pad2}-{utcdate_pad2}T{utchour_pad2}-{utcminute_pad2}-{utcsecond_pad2}.{utcmilis_pad3}Z`;
+
+function getReplacersFromDate(date: Date13 | Date) {
+  const padStart_2_0 = (val: any) => String(val).padStart(2, '0');
+  const padEnd_3_0 = (val: any) => String(val).padEnd(3, '0');
+
+  const replacers = {
+    utcfullyear: () => date.getUTCFullYear(),
+    utcmonth: () => date.getUTCMonth() + 1,
+    utcmonth_pad2: () => padStart_2_0(this.month()),
+    utcdate: () => date.getUTCDate(),
+    utcdate_pad2: () => padStart_2_0(this.date()),
+    utchour: () => date.getUTCHours(),
+    utchour_pad2: () => padStart_2_0(this.hour())
+    utcminute: () => date.getUTCMinutes(),
+    utcminute_pad2: () => padStart_2_0(this.minute()),
+    utcsecond: () => date.getUTCSeconds(),
+    utcsecond_pad2: () => padStart_2_0(this.second()),
+    utcmilis: () => date.getUTCMiliseconds(),
+    utcmilis_pad3: () => padEnd_3_0(this.milis()),
+  };
+
+  return replacers;
+}
+
+function toDate13ISOString(date: Date13 | Date) {
+  if (!(date instanceof Date13)) {
+    throw new TypeError('Argument must be a Date type');
+  }
+
+  let transformedPattern = isoPattern;
+
+  const replacers = getReplacersFromDate(date);
+
+  for (const [key, val] of Object.entries(replacers)) {
+    transformedPattern = transformedPattern.replace(new RegExp(`{${key}}`, 'gi'), val());
+  }
+
+  return transformedPattern;
+}
+
 function fromGregorian (date: Date): { year: number, month: number, date: number} {
   // TODO implement
   throw new Error('Not implemented');
@@ -192,12 +270,4 @@ function fromDate13ISOString(str: string): Date13 {
   } else {
     throw new Error('Invalid ISO string');
   }
-}
-
-function toDate13ISOString(date: Date13) {
-  if (!(date instanceof Date13)) {
-    throw new TypeError('Argument must be a Date type');
-  }
-
-  throw new Error('Not implemented');
 }
