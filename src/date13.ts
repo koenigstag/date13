@@ -13,8 +13,7 @@ export class Date13 {
     if (a instanceof Date || a instanceof Date13) {
       this.base = Date13.fromDate(a);
     } else if (typeof a === 'string') {
-      const d13 = Date13.fromISOString(a);
-      this.base = d13.toGregorian();
+      this.base = Date13.parse(a);
     } else if (typeof a === 'number') {
       const d13 = Date13.fromNumbers(a, b, c, d, e, f, g);
       this.base = d13.toGregorian();
