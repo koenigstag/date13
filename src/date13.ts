@@ -304,7 +304,7 @@ function fromGregorian (date: Date): { year: number, month: number, date: number
   }
 
   const months = Array(12).fill(28);
-  const isLeap = Date13.isLeapYear(year);
+  const isLeap = isLeapYear(year);
   months.push(isLeap ? 30 : 29);
 
   let month = 0;
