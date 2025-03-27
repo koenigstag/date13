@@ -96,7 +96,7 @@ export class Date13 {
       throw new TypeError('Argument must be a Date type');
     }
 
-    return Date13.fromMiliseconds(date.getTime());
+    return Date13.fromUnixMiliseconds(date.getTime());
   }
 
   static fromUnixMiliseconds(milis: number): Date13 {
