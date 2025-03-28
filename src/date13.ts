@@ -1,4 +1,24 @@
+const constants = {
+  monthsInYear: () => 13,
+  daysInMonthAverage: () => 28,
+  months: (year: number) => Array(12).fill(28).concat(isLeapYear(year) ? 30 : 29),
+  daysInMonth: (year: number, month: number) => {
+    const months = this.months(year);
+    return months[month];
+  },
+  month13NameEn: (short?: boolean) => 'Lunary'.slice(0, short ? 3 : undefined),
+  monthNamesEn: (short?: boolean) => {
+    const names = [...(short ? monthShortNamesEn : monthNamesEn), this.month13NameEn(short)];
+    return names;
+  },
+  unixEpochYear: () => 1970,
+  isoRegexp: () => /^\d{4}-\d{1,2}-\d{1,2}/i,
+  month13IsoRegexp: () => /^\d{4}-13-/i,
+};
+
 export class Date13 {
+  static readonly constants = constants;
+
   private base: Date;
 
   private year: number;
@@ -118,12 +138,16 @@ export class Date13 {
     return new Date(this.getTime());
   }
 
+  static fromGregorian(date: Date | Date13): Date13 {
+    return Date13.fromDate(date);
+  }
+
   static parse(str: string): number {
     if (typeof str != 'string') {
       throw new TypeError('Argument must be a string type');
     }
 
-    if (/^\d{4}-13-/i.test(str)) {
+    if (constants.month13IsoRegexp().test(str)) {
       const d13 = fromDate13ISOString(str);
 
       return d13.getTime();
@@ -137,7 +161,7 @@ export class Date13 {
       throw TypeError('Argument must be a string');
     }
 
-    if (/^\d{4}-13-/i.test(str)) {
+    if (constants.month13IsoRegexp().test(str)) {
       return fromDate13ISOString(str);
     } else {
       return new Date13(Date.parse(str));
@@ -214,8 +238,6 @@ export class Date13 {
 
 const isoPattern = `{utcfullyear}-{utcmonth_pad2}-{utcdate_pad2}T{utchour_pad2}-{utcminute_pad2}-{utcsecond_pad2}.{utcmilis_pad3}Z`;
 
-const isoRegexp = /^\d{4}-\d{1,2}-\d{1,2}/i;
-
 function getReplacersFromDate(date: Date13 | Date) {
   const padStart_2_0 = (val: any) => String(val).padStart(2, '0');
   const padEnd_3_0 = (val: any) => String(val).padEnd(3, '0');
@@ -260,7 +282,7 @@ function fromDate13ISOString(str: string): Date13 {
     throw new TypeError('Argument must be a string');
   }
 
-  if (!isoRegexp.test(str)) {
+  if (!constants.isoRegexp().test(str)) {
     return new Date13(Date.parse(str));
   }
 
@@ -293,7 +315,7 @@ function fromDate13ISOString(str: string): Date13 {
 function fromGregorian (date: Date): { year: number, month: number, date: number} {
   const daysSinceEpoch = getDaysSinceEpoch(date);
 
-  let year = unixEpochYear;
+  let year = constants.unixEpochYear();
   let dayOfYear = daysSinceEpoch;
 
   while (true) {
@@ -303,9 +325,7 @@ function fromGregorian (date: Date): { year: number, month: number, date: number
     year++;
   }
 
-  const months = Array(12).fill(28);
-  const isLeap = isLeapYear(year);
-  months.push(isLeap ? 30 : 29);
+  const months = constants.months();
 
   let month = 0;
   while (dayOfYear >= months[month]) {
@@ -322,17 +342,34 @@ function isLeapYear(year: number): boolean {
   return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
 }
 
-const unixEpochYear = 1970;
 function getDaysInYear(year: number) {
   return isLeapYear(year) ? 366 : 365;
 }
 
 function getDaysSinceEpoch(date: Date): number {
-  const epoch = Date.UTC(unixEpochYear, 0, 1);
+  const epoch = Date.UTC(constants.unixEpochYear(), 0, 1);
 
   const utc = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 
   return Math.floor((utc - epoch) / 86400000);
 }
 
+const monthNamesEn = getMonthNamesEn(false);
+const monthShortNamesEn = getMonthNamesEn(true);
+
+export function getMonthNamesEn(short = false): string[] {
+  const formatter = new Intl.DateTimeFormat("en", {
+    month: short ? "short" : "long",
+    timeZone: "UTC",
+  });
+
+  const names: string[] = [];
+
+  for (let month = 0; month < 12; month++) {
+    const date = new Date(Date.UTC(constants.unixEpochYear(), month, 1));
+    names.push(formatter.format(date));
+  }
+
+  return names;
+}
 
