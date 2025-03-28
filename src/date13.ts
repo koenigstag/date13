@@ -6,7 +6,7 @@ const constants = {
     const months = this.months(year);
     return months[month];
   },
-  month13NameEn: (short?: boolean) => 'Lunary'.slice(0, short ? 3 : undefined),
+  month13NameEn: (short?: boolean) => short ? 'Lun' : 'Lunary',
   monthNamesEn: (short?: boolean) => {
     const names = [...(short ? monthShortNamesEn : monthNamesEn), this.month13NameEn(short)];
     return names;
