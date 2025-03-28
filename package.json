@@ -1,0 +1,33 @@
+{
+  "name": "date13",
+  "version": "0.1.0",
+  "description": "Date13 is a simple date library for JavaScript that provides a new class for 13-months calendar system. The library allows you to create, manipulate, format dates and is compatible with the standard JavaScript Date object.",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/koenigstag/date13.git"
+  },
+  "keywords": [
+    "date13",
+    "13",
+    "date",
+    "calendar",
+    "13-months",
+    "date-library",
+    "javascript-date",
+    "date-manipulation",
+    "date-formatting"
+  ],
+  "author": "koenigstag",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/koenigstag/date13/issues"
+  },
+  "homepage": "https://github.com/koenigstag/date13#readme",
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  }
+}
