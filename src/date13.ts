@@ -142,6 +142,16 @@ export class Date13 {
     return Date13.fromDate(date);
   }
 
+  static UTC(year: number, month?: number, date?: number, hour?: number, minute?: number, second?: number, milisecond?: number): Date13 {
+    throw new Error('Not implemented');
+
+    return new Date13(year, month, date, hour, minute, second, milisecond);
+  }
+
+  static now() {
+    return Date.now();
+  }
+
   static parse(str: string): number {
     if (typeof str != 'string') {
       throw new TypeError('Argument must be a string type');
