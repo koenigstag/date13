@@ -57,27 +57,27 @@ export class Date13 {
     return Math.floor(this.utcMonth / constants.monthsInYear() / 4) + 1;
   }
 
-  public getFullYear () {
-    return this.getUTCFullYear();
-  }
+  // public getFullYear () {
+  //   return this.getUTCFullYear();
+  // }
 
   public getUTCFullYear () {
     return this.utcYear;
   }
 
   /* 0-12 */
-  public getMonth () {
-    return this.getUTCMonth();
-  }
+  // public getMonth () {
+  //   return this.getUTCMonth();
+  // }
 
   /* 0-12 */
   public getUTCMonth () {
     return this.utcMonth;
   }
 
-  public getDate () {
-    return this.getUTCDate();
-  }
+  // public getDate () {
+  //   return this.getUTCDate();
+  // }
 
   public getUTCDate () {
     return this.utcDate;
@@ -210,7 +210,6 @@ export class Date13 {
 
   static fromDate (date: Date | Date13): Date13 {
     if (
-      typeof date != 'object' ||
       !(date instanceof Date) ||
       !(date instanceof Date13)
     ) {

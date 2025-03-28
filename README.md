@@ -20,6 +20,10 @@ This system is designed to fit extra days into last 13th month to simplify the c
 - JS Date compatible
 - TypeScript support
 
+## Roadmap
+- Timezone support
+- Date formatting (separate library `date13-intl`)
+
 ## Installation
 
 #### Install with npm, yarn or pnpm
@@ -77,10 +81,9 @@ constructor(year: number, month: number, day: number, hour?: number, minute?: nu
 
 ### Date13 instance methods
 ```javascript
-getDate(): number; // get date (1-28 for 12 months, 1-29/30 for 13th month)
-getMonth(): number; // get 0-based month (0-12)
-getFullYear(): number; // get year
-toDateString(): string; // convert to date string (e.g. "2024-13-01")
+getUTCDate(): number; // get date (1-28 for 12 months, 1-29/30 for 13th month)
+getUTCMonth(): number; // get 0-based month (0-12)
+getUTCFullYear(): number; // get year
 toISOString(): string; // convert to ISO 8601 format (same as standard Date)
 toString(): string; // convert to string (same as standard Date)
 ... other `Date` interface methods
@@ -88,16 +91,13 @@ toString(): string; // convert to string (same as standard Date)
 
 ### Date13 static methods
 ```javascript
-Date13.parse(dateString: string): Date13; // parse date string
+Date13.now(): Date13; // get current timestamp
+Date13.parse(dateString: string): Date13; // parse date string to timestamp
+Date13.fromDate(date: Date | Date13): Date13; // create date from standard Date
+Date13.fromUnixMilliseconds(milliseconds: number): Date13; // create date from unix milliseconds
+Date13.fromUnixSeconds(seconds: number): Date13; // create date from unix seconds
 Date13.toDate13ISOString(date: Date13): string; // convert to date13 pseudo-iso format
 Date13.fromDate13ISOString(dateString: string): Date13; // parse date13 pseudo-iso format
-Date13.isValid(date: Date13): boolean; // check if date is valid
-Date13.now(): Date13; // get current timestamp
-Date13.UTC(year: number, month: number, day: number, hour?: number, minute?: number, second?: number, millisecond?: number): Date13; // create date in UTC
-Date13.fromUnixSeconds(seconds: number): Date13; // create date from unix seconds
-Date13.fromUnixMilliseconds(milliseconds: number): Date13; // create date from unix milliseconds
-Date13.fromDate(date: Date | Date13): Date13; // create date from standard Date
-Date13.fromDateString(dateString: string): Date13; // create date from date string
 ```
 
 
