@@ -1,6 +1,6 @@
 {
   "name": "date13",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Date13 is a simple date library for JavaScript that provides a new class for 13-months calendar system",
   "type": "module",
   "main": "./dist/date13.cjs",

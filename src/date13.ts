@@ -264,7 +264,7 @@ export class Date13 {
 
   static fromDate (date: Date | Date13): Date13 {
     if (
-      !(date instanceof Date) ||
+      !(date instanceof Date) &&
       !(date instanceof Date13)
     ) {
       throw new TypeError('Argument must be a Date type');
