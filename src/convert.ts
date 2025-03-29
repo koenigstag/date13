@@ -1,5 +1,5 @@
-import { constants } from './constants';
-import { getDaysSinceEpoch } from './utils';
+import constants from './constants';
+import utils from './utils';
 
 export type DateParts = {
   year: number;
@@ -12,19 +12,19 @@ export type DateParts = {
 };
 
 export function convertToDate13 (input: Date): DateParts {
-  const daysSinceEpoch = getDaysSinceEpoch(input);
+  const daysSinceEpoch = utils.getDaysSinceEpoch(input);
 
-  let year = constants.unixEpochYear();
+  let year = constants.unixEpochYear;
   let dayOfYear = daysSinceEpoch;
 
   while (true) {
-    const daysInYear = constants.getDaysInYear(year);
+    const daysInYear = utils.getDaysInYear(year);
     if (dayOfYear < daysInYear) break;
     dayOfYear -= daysInYear;
     year++;
   }
 
-  const months = constants.months(year);
+  const months = utils.getMonths(year);
 
   let month = 0;
   while (dayOfYear >= months[month]) {

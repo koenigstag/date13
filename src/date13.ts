@@ -1,9 +1,11 @@
-import { constants } from './constants';
+import constants from './constants';
 import { convertToDate13 } from './convert';
-import { fromDate13ISOString, toDate13ISOString } from './format';
+import { getReplacersFromDate } from './format';
+import utils from './utils';
 
 export class Date13 {
   static readonly constants = constants;
+  static readonly utils = utils;
 
   private base: Date;
 
@@ -54,7 +56,7 @@ export class Date13 {
   }
 
   public getQuarter () {
-    return Math.floor(this.utcMonth / constants.monthsInYear() / 4) + 1;
+    return Math.floor(this.utcMonth / constants.monthsInYear / 4) + 1;
   }
 
   // public getFullYear () {
@@ -171,8 +173,8 @@ export class Date13 {
       throw new TypeError('Argument must be a string type');
     }
 
-    if (constants.month13IsoRegexp().test(str)) {
-      const d13 = fromDate13ISOString(str);
+    if (constants.month13IsoRegexp.test(str)) {
+      const d13 = this.fromDate13ISOString(str);
 
       return d13.getTime();
     }
@@ -185,8 +187,8 @@ export class Date13 {
       throw TypeError('Argument must be a string');
     }
 
-    if (constants.month13IsoRegexp().test(str)) {
-      return fromDate13ISOString(str);
+    if (constants.month13IsoRegexp.test(str)) {
+      return this.fromDate13ISOString(str);
     } else {
       return new Date13(Date.parse(str));
     }
@@ -197,7 +199,47 @@ export class Date13 {
       throw new TypeError('Argument must be a string');
     }
 
-    return fromDate13ISOString(str);
+    if (!constants.isoRegexp.test(str)) {
+      return new Date13(Date.parse(str));
+    }
+
+    const isoString = str;
+
+    const match =
+      /^(\d{4})-(\d{1,2})-(\d{1,2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?)?(Z)?$/.exec(
+        isoString
+      );
+
+    if (!match) throw new Error('Invalid Date13 ISO string');
+
+    const [, yearStr, monthStr, dayStr, h, m, s, ms, z] = match;
+
+    const year = parseInt(yearStr);
+    const month = parseInt(monthStr) - 1;
+    const day = parseInt(dayStr);
+
+    let hours = h !== undefined ? parseInt(h) : 0;
+    let minutes = m !== undefined ? parseInt(m) : 0;
+    let seconds = s !== undefined ? parseInt(s) : 0;
+    let milliseconds = ms !== undefined ? parseInt(ms.padEnd(3, '0')) : 0;
+
+    if (!z) {
+      const local = new Date(
+        year,
+        month,
+        day,
+        hours,
+        minutes,
+        seconds,
+        milliseconds
+      );
+      hours = local.getUTCHours();
+      minutes = local.getUTCMinutes();
+      seconds = local.getUTCSeconds();
+      milliseconds = local.getUTCMilliseconds();
+    }
+
+    return new Date13(year, month, day, hours, minutes, seconds, milliseconds);
   }
 
   static toDate13ISOString (date: Date13): string {
@@ -205,7 +247,19 @@ export class Date13 {
       throw new TypeError('Argument must be a Date type');
     }
 
-    return toDate13ISOString(date);
+    let transformedPattern = constants.isoPattern;
+
+    // TODO remove any when Date13 will satisfy Date interface
+    const replacers = getReplacersFromDate(date as any);
+
+    for (const [key, val] of Object.entries(replacers)) {
+      transformedPattern = transformedPattern.replace(
+        new RegExp(key, 'gi'),
+        String(val())
+      );
+    }
+
+    return transformedPattern;
   }
 
   static fromDate (date: Date | Date13): Date13 {
