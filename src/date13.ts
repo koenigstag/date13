@@ -284,10 +284,6 @@ export class Date13 {
     return this.getTime();
   }
 
-  public toString () {
-    return this.toGregorian().toString();
-  }
-
   /* formatting methods */
 
   public toISOString () {
@@ -300,6 +296,36 @@ export class Date13 {
 
   public toJSON () {
     return this.toISOString();
+  }
+
+  // TODO refactor to String methods
+
+  public toString () {
+    return this.toGregorian().toString();
+  }
+
+  public toDateString () {
+    return this.toGregorian().toDateString();
+  }
+
+  public toTimeString () {
+    return this.toGregorian().toTimeString();
+  }
+
+  public toLocaleDateString (locales?: any, options?: any) {
+    return this.toGregorian().toLocaleDateString(locales, options);
+  }
+
+  public toLocaleTimeString (locales?: any, options?: any) {
+    return this.toGregorian().toLocaleTimeString(locales, options);
+  }
+
+  public toUTCString () {
+    return this.toGregorian().toUTCString();
+  }
+
+  public toLocaleString (locales?: any, options?: any) {
+    return this.toGregorian().toLocaleString(locales, options);
   }
 
   /* custom methods */
