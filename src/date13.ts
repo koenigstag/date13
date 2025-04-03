@@ -322,8 +322,16 @@ export class Date13 {
     return this.getTime();
   }
 
-  [Symbol.toPrimitive] (hint?: 'number' | 'string' | 'default') {
-    return hint === 'number' ? this.valueOf() : this.toString();
+  [Symbol.toPrimitive] (hint: 'number' | 'string' | 'default'): string | number {
+    if (hint != 'number' && hint != 'string' && hint != 'default') {
+      throw new TypeError();
+    }
+
+    if (hint === 'number') {
+      return this.valueOf();
+    }
+
+    return this.toString();
   }
 
   /* formatting methods */
