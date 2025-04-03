@@ -14,13 +14,6 @@ export class Date13 {
 
   private timestampMilis: number;
 
-  /** same as Date.getUTCFullYear() */
-  private utcYear: number;
-  /** 0-12 */
-  private date13UTCMonthIndex: number;
-
-  private date13UTCDateIndex: number;
-
   constructor();
   constructor(date: Date | Date13);
   constructor(milliseconds: number);
@@ -94,13 +87,6 @@ export class Date13 {
     //   utcMonthIndex,
     //   utcDate,
     // });
-
-    // does not change from gregorian date
-    this.utcYear = utcYear;
-
-    // different from gregorian date
-    this.date13UTCMonthIndex = utcMonthIndex; // 0-12
-    this.date13UTCDateIndex = utcDate;
   }
 
   public setBase (date: Date | Date13 | number) {
@@ -136,8 +122,10 @@ export class Date13 {
   }
 
   public getQuarter () {
+    const utcMonth = this.getUTCMonth();
+
     return (
-      Math.floor(this.date13UTCMonthIndex / constants.monthsInYear13 / 4) + 1
+      Math.floor(utcMonth / constants.monthsInYear13 / 4) + 1
     );
   }
 
