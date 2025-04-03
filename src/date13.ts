@@ -323,15 +323,19 @@ export class Date13 {
   }
 
   [Symbol.toPrimitive] (hint: 'number' | 'string' | 'default'): string {
-    if (hint != 'number' && hint != 'string' && hint != 'default') {
-      throw new TypeError();
-    }
-
     if (hint === 'number') {
-      return this.valueOf().toString();
+      return this.valueOf();
     }
 
-    return this.toString();
+    if (hint === 'string') {
+      return this.toString();
+    }
+
+    if (hint === 'default') {
+      return this.toString();
+    }
+
+    throw new TypeError();
   }
 
   /* formatting methods */
