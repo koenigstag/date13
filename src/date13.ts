@@ -12,7 +12,7 @@ export class Date13 {
   static readonly constants = constants;
   static readonly utils = utils;
 
-  private timestampMilis: number;
+  private timestampMilis: number = NaN;
 
   constructor();
   constructor(date: Date | Date13);
@@ -36,9 +36,8 @@ export class Date13 {
     f?: number,
     g?: number
   ) {
-    const milis = this.calculateTimestamp(a, b, c, d, e, f, g);
-
-    this.updateTimestamp(milis, 'constructor');
+    this.timestampMilis = this.calculateTimestamp(a, b, c, d, e, f, g);
+    this.onTimestampUpdate(this.timestampMilis, 'constructor');
   }
 
   private calculateTimestamp (
@@ -67,9 +66,7 @@ export class Date13 {
     }
   }
 
-  private updateTimestamp (timestampMilis: number, source: string) {
-    this.timestampMilis = timestampMilis;
-
+  private onTimestampUpdate (timestampMilis: number, source: string) {
     // const {
     //  year: utcYear,
     //  month: utcMonthIndex,
