@@ -86,6 +86,10 @@ export class Date13 {
     // });
   }
 
+  private setBase (d: Date | Date13 | number) {
+    this.timestampMilis = typeof d === 'number' ? d : d.getTime();
+  }
+
   /* JS Date interface */
 
   /* getter methods */
