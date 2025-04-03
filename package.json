@@ -7,12 +7,15 @@
   "browser": "./dist/date13.js",
   "types": "./dist/types/index.d.ts",
   "exports": {
+    "browser": "./dist/date13.js",
     "import": "./dist/date13.esm.js",
-    "require": "./dist/date13.cjs",
-    "browser": "./dist/date13.js"
+    "require": "./dist/date13.cjs"
   },
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "release": "npm run test && npm run build"
   },
   "repository": {
     "type": "git",
@@ -41,7 +44,8 @@
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.2",
     "rollup": "^4.37.0",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.9"
   },
   "dependencies": {
     "tslib": "^2.8.1"
