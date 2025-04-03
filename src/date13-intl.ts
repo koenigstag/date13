@@ -28,7 +28,7 @@ export class Date13TimeFormat {
 
     return {
       ...options,
-      calendar: constants.calendarName,
+      calendar: constants.date13CalendarName,
     };
   }
 
@@ -82,9 +82,15 @@ export class Date13TimeFormat {
     const opts = this.resolvedOptions();
     const parts: Intl.DateTimeFormatPart[] = [];
 
-    const year = date.getUTCFullYear();
-    const month = date.getUTCMonth();
-    const day = date.getUTCDate();
+    const {
+      year,
+      month,
+      date: day,
+      hour,
+      minute,
+      second,
+      milisecond,
+    } = date.toDateParts();
 
     const locale = this.locale;
     const useGenitive = Date13TimeFormat.isGenitiveOrder(opts);
@@ -105,7 +111,7 @@ export class Date13TimeFormat {
     // day
     if (opts.day) {
       const dayStr =
-        opts.day === '2-digit' ? String(day).padStart(2, '0') : String(day);
+        opts.day === '2-digit' ? utils.pad(day, 'start', 2, '0') : String(day);
       parts.push({ type: 'day', value: dayStr });
       pushLiteral();
     }
@@ -127,6 +133,38 @@ export class Date13TimeFormat {
       const yearStr =
         opts.year === '2-digit' ? String(year).slice(-2) : String(year);
       parts.push({ type: 'year', value: yearStr });
+    }
+
+    // hour
+    if (opts.hour) {
+      const hourVal = opts.hour12 ? utils.get12HourFormat(hour) : hour;
+
+      const hourStr =
+        opts.hour === '2-digit'
+          ? utils.pad(hour, 'start', 2, '0')
+          : String(hour);
+      parts.push({ type: 'hour', value: hourStr });
+      pushLiteral();
+    }
+
+    // minute
+    if (opts.minute) {
+      const minuteStr =
+        opts.minute === '2-digit'
+          ? utils.pad(minute, 'start', 2, '0')
+          : String(minute);
+      parts.push({ type: 'minute', value: minuteStr });
+      pushLiteral();
+    }
+
+    // second
+    if (opts.second) {
+      const secondStr =
+        opts.second === '2-digit'
+          ? utils.pad(second, 'start', 2, '0')
+          : String(second);
+      parts.push({ type: 'second', value: secondStr });
+      pushLiteral();
     }
 
     // remove last space
@@ -228,7 +266,7 @@ export class Date13TimeFormat {
   ): string {
     const localeConfig = Date13Dictionary.getMonth13Locale(locale);
 
-    const digit = constants.monthsInYear + 1;
+    const digit = constants.monthsInYear13 + 1;
 
     if (format === 'short') {
       return localeConfig.short;
@@ -237,7 +275,7 @@ export class Date13TimeFormat {
     } else if (format === 'numeric') {
       return String(digit);
     } else if (format === '2-digit') {
-      return String(digit).padStart(2, '0');
+      return utils.pad(digit, 'start', 2, '0');
     }
 
     return isGenitive ? localeConfig.genitive : localeConfig.long;

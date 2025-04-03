@@ -12,68 +12,67 @@ export function getReplacersFromDate (date: Date) {
     YYYY () {
       return date.getUTCFullYear();
     },
-    M () {
-      return date.getUTCMonth() + 1;
-    },
     MM () {
       return padStart_2_0(this.M());
     },
-    d () {
-      return date.getUTCDate();
+    M () {
+      return date.getUTCMonth() + 1;
     },
     dd () {
       return padStart_2_0(this.d());
     },
-
-    h () {
-      return utils.get12HourFormat(date).hours12;
+    d () {
+      return date.getUTCDate();
     },
     hh () {
       return padStart_2_0(this.h());
     },
-    a () {
-      return utils.get12HourFormat(date).period.toLowerCase();
+    h () {
+      return utils.get12HourFormat(date.getUTCHours()).hours12;
     },
     aa () {
       return this.a();
     },
-    A () {
-      return this.a().toUpperCase();
+    a () {
+      return utils.get12HourFormat(date.getUTCHours()).period.toLowerCase();
     },
     AA () {
       return this.A();
     },
-
-    H () {
-      return date.getUTCHours();
+    A () {
+      return this.a().toUpperCase();
     },
+
     HH () {
       return padStart_2_0(this.H());
     },
-    m () {
-      return date.getUTCMinutes();
+    H () {
+      return date.getUTCHours();
     },
     mm () {
       return padStart_2_0(this.m());
     },
-    s () {
-      return date.getUTCSeconds();
+    m () {
+      return date.getUTCMinutes();
     },
     ss () {
       return padStart_2_0(this.s());
+    },
+    s () {
+      return date.getUTCSeconds();
     },
 
     milis () {
       return date.getUTCMilliseconds();
     },
-    S () {
-      return Math.floor(this.milis() / 100);
+    SSS () {
+      return padEnd_3_0(this.milis());
     },
     SS () {
       return padEnd_2_0(Math.floor(this.milis() / 10));
     },
-    SSS () {
-      return padEnd_3_0(this.milis());
+    S () {
+      return Math.floor(this.milis() / 100);
     },
   };
 

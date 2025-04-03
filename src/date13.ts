@@ -1,148 +1,364 @@
 import constants from './constants';
-import { convertToDate13 } from './convert';
+import {
+  fromDate13Parts,
+  date13PartsFromMilis,
+  toGregorianDate,
+} from './convert';
 import { getReplacersFromDate } from './format';
+import { DateParts } from './types';
 import utils from './utils';
 
 export class Date13 {
   static readonly constants = constants;
   static readonly utils = utils;
 
-  private base: Date;
+  private timestampMilis: number;
 
+  /** same as Date.getUTCFullYear() */
   private utcYear: number;
-  private utcMonth: number; // 0-based
-  private utcDate: number;
+  /** 0-12 */
+  private date13UTCMonthIndex: number;
+
+  private date13UTCDateIndex: number;
 
   constructor();
   constructor(date: Date | Date13);
   constructor(milliseconds: number);
   constructor(dateString: string);
-  constructor(year: number, month: number, date: number, hour?: number, minute?: number, second?: number, milisecond?: number);
-  constructor(a?: Date | Date13 | string | number, b?: number, c?: number, d?: number, e?: number, f?: number, g?: number) {
+  constructor(
+    year: number,
+    monthIndex: number,
+    date?: number,
+    hour?: number,
+    minute?: number,
+    second?: number,
+    milisecond?: number
+  );
+  constructor (
+    a?: Date | Date13 | string | number,
+    b?: number,
+    c?: number,
+    d?: number,
+    e?: number,
+    f?: number,
+    g?: number
+  ) {
+    const milis = this.calculateTimestamp(a, b, c, d, e, f, g);
+
+    this.updateTimestamp(milis, 'constructor');
+  }
+
+  private calculateTimestamp (
+    a?: Date | Date13 | string | number,
+    b?: number,
+    c?: number,
+    d?: number,
+    e?: number,
+    f?: number,
+    g?: number
+  ): number {
     if (a instanceof Date || a instanceof Date13) {
-      this.base = Date13.fromDate(a).toGregorian();
+      return a.getTime();
     } else if (typeof a === 'string') {
       const milis = Date13.parse(a);
-      this.base = new Date(milis);
+      return milis;
     } else if (typeof a === 'number') {
-      this.base = Date13.fromDateParts(a, b, c, d, e, f, g).toGregorian();
+      if (a && b) {
+        const d13 = Date13.fromDateParts(a, b, c, d, e, f, g);
+        return d13.getTime();
+      } else {
+        return a;
+      }
     } else {
-      this.base = new Date();
+      return Date13.now();
     }
-
-    this.updateFromBase();
   }
 
-  private updateFromBase () {
-    const { year, month, date } = convertToDate13(this.base);
+  private updateTimestamp (timestampMilis: number, source: string) {
+    this.timestampMilis = timestampMilis;
 
-    this.utcYear = year;
-    this.utcMonth = month;
-    this.utcDate = date;
+    const {
+      year: utcYear,
+      month: utcMonthIndex,
+      date: utcDate,
+      hour: utcHour,
+      minute: utcMinute,
+      second: utcSecond,
+      milisecond: utcMilisecond,
+      timezoneOffset,
+    } = date13PartsFromMilis(timestampMilis);
+
+    // console.log('updateFromBase', {
+    //   source,
+    //   utcYear,
+    //   utcMonthIndex,
+    //   utcDate,
+    // });
+
+    // does not change from gregorian date
+    this.utcYear = utcYear;
+
+    // different from gregorian date
+    this.date13UTCMonthIndex = utcMonthIndex; // 0-12
+    this.date13UTCDateIndex = utcDate;
   }
 
-  public setBase (date: Date | Date13) {
-    this.base = new Date(date.getTime());
-    this.updateFromBase();
+  public setBase (date: Date | Date13 | number) {
+    // console.log('setBase', date);
+    this.updateTimestamp(
+      typeof date === 'number' ? date : date.getTime(),
+      'setBase'
+    );
   }
 
-  /* js Date interface */
+  /* JS Date interface */
 
   /* getter methods */
 
-  /* 0-6 */
+  public getTime () {
+    return this.timestampMilis;
+  }
+
+  public getUTCDay () {
+    return this.toGregorian().getUTCDay();
+  }
+
+  public getUTCWeekDay () {
+    return this.toGregorian().getDay();
+  }
+
   public getDay () {
-    return this.base.getDay();
+    return this.toGregorian().getDay();
+  }
+
+  public getWeekDay () {
+    return this.toGregorian().getDay();
   }
 
   public getQuarter () {
-    return Math.floor(this.utcMonth / constants.monthsInYear / 4) + 1;
+    return (
+      Math.floor(this.date13UTCMonthIndex / constants.monthsInYear13 / 4) + 1
+    );
   }
 
-  // public getFullYear () {
-  //   return this.getUTCFullYear();
-  // }
+  public getFullYear () {
+    const timezoneInMilis = this.getTimezoneOffsetInMiliseconds();
+    const { year: localYear } = date13PartsFromMilis(this.timestampMilis - timezoneInMilis);
+
+    return localYear;
+  }
 
   public getUTCFullYear () {
-    return this.utcYear;
+    const { year: utcYear } = date13PartsFromMilis(this.timestampMilis);
+
+    return utcYear;
   }
 
-  /* 0-12 */
-  // public getMonth () {
-  //   return this.getUTCMonth();
-  // }
+  public getMonth () {
+    const timezoneInMilis = this.getTimezoneOffsetInMiliseconds();
+    const { month: localMonth } = date13PartsFromMilis(this.timestampMilis - timezoneInMilis);
 
-  /* 0-12 */
+    return localMonth;
+  }
+
   public getUTCMonth () {
-    return this.utcMonth;
+    return this.date13UTCMonthIndex;
   }
 
-  // public getDate () {
-  //   return this.getUTCDate();
-  // }
+  public getDate () {
+    const timezoneInMilis = this.getTimezoneOffsetInMiliseconds();
+    const { date: localDate } = date13PartsFromMilis(this.timestampMilis - timezoneInMilis);
+
+    return localDate;
+  }
 
   public getUTCDate () {
-    return this.utcDate;
+    return this.date13UTCDateIndex;
   }
 
   public getHours () {
-    return this.base.getHours();
+    return this.toGregorian().getHours();
   }
 
   public getUTCHours () {
-    return this.base.getUTCHours();
+    return this.toGregorian().getUTCHours();
   }
 
   public getMinutes () {
-    return this.base.getMinutes();
+    return this.toGregorian().getMinutes();
   }
 
   public getUTCMinutes () {
-    return this.base.getUTCMinutes();
+    return this.toGregorian().getUTCMinutes();
   }
 
   public getSeconds () {
-    return this.base.getSeconds();
+    return this.toGregorian().getSeconds();
   }
 
   public getUTCSeconds () {
-    return this.base.getUTCSeconds();
+    return this.toGregorian().getUTCSeconds();
   }
 
   public getMilliseconds () {
-    return this.base.getMilliseconds();
+    return this.toGregorian().getMilliseconds();
   }
 
   public getUTCMilliseconds () {
-    return this.base.getUTCMilliseconds();
+    return this.toGregorian().getUTCMilliseconds();
   }
 
   public getTimezoneOffset () {
-    return this.base.getTimezoneOffset();
+    return this.toGregorian().getTimezoneOffset();
   }
 
-  /* compare methods */
-
-  public getTime () {
-    return this.base.getTime();
+  public getTimezoneOffsetInMiliseconds () {
+    return this.toGregorian().getTimezoneOffset() * 60 * 1000;
   }
+
+  /* set methods */
+
+  public setDate (date: number) {
+    const d = this.toGregorian();
+    d.setDate(date);
+    this.setBase(d);
+  }
+
+  public setUTCDate (date: number) {
+    const d = this.toGregorian();
+    d.setUTCDate(date);
+    this.setBase(d);
+  }
+
+  public setMonth (month: number) {
+    const d = this.toGregorian();
+    d.setMonth(month);
+    this.setBase(d);
+  }
+
+  public setUTCMonth (month: number) {
+    const d = this.toGregorian();
+    d.setUTCMonth(month);
+    this.setBase(d);
+  }
+
+  public setFullYear (year: number) {
+    const d = this.toGregorian();
+    d.setFullYear(year);
+    this.setBase(d);
+  }
+
+  public setUTCFullYear (year: number) {
+    const d = this.toGregorian();
+    d.setUTCFullYear(year);
+    this.setBase(d);
+  }
+
+  public setHours (hour: number) {
+    const d = this.toGregorian();
+    d.setHours(hour);
+    this.setBase(d);
+  }
+
+  public setUTCHours (hour: number) {
+    const d = this.toGregorian();
+    d.setUTCHours(hour);
+    this.setBase(d);
+  }
+
+  public setMinutes (minute: number) {
+    const d = this.toGregorian();
+    d.setMinutes(minute);
+    this.setBase(d);
+  }
+
+  public setUTCMinutes (minute: number) {
+    const d = this.toGregorian();
+    d.setUTCMinutes(minute);
+    this.setBase(d);
+  }
+
+  public setSeconds (second: number) {
+    const d = this.toGregorian();
+    d.setSeconds(second);
+    this.setBase(d);
+  }
+
+  public setUTCSeconds (second: number) {
+    const d = this.toGregorian();
+    d.setUTCSeconds(second);
+    this.setBase(d);
+  }
+
+  public setMilliseconds (milisecond: number) {
+    const d = this.toGregorian();
+    d.setMilliseconds(milisecond);
+    this.setBase(d);
+  }
+
+  public setUTCMilliseconds (milisecond: number) {
+    const d = this.toGregorian();
+    d.setUTCMilliseconds(milisecond);
+    this.setBase(d);
+  }
+
+  public setTime (time: number) {
+    const d = this.toGregorian();
+    d.setTime(time);
+    this.setBase(d);
+  }
+
+  /* system methods */
 
   public valueOf () {
     return this.getTime();
   }
 
-  /* formatting methods */
-
   public toString () {
-    return this.base.toString();
+    return this.toGregorian().toString();
   }
 
+  /* formatting methods */
+
   public toISOString () {
-    return this.base.toISOString();
+    return this.toDate13ISOString();
+  }
+
+  public toDate13ISOString () {
+    return Date13.toDate13ISOString(this);
   }
 
   public toJSON () {
     return this.toISOString();
+  }
+
+  public toDateParts (): DateParts {
+    const year = this.getUTCFullYear();
+    const month = this.getUTCMonth();
+    const day = this.getUTCDate();
+    const hour = this.getUTCHours();
+    const minute = this.getUTCMinutes();
+    const second = this.getUTCSeconds();
+    const milisecond = this.getUTCMilliseconds();
+    const timezoneOffset = this.getTimezoneOffset();
+
+    return {
+      calendar: constants.date13CalendarName,
+      year,
+      month,
+      date: day,
+      hour,
+      minute,
+      second,
+      milisecond,
+      timezoneOffset,
+    };
+  }
+
+  /* custom methods */
+
+  public get isLeapYear () {
+    return utils.isLeapYear(this.utcYear);
   }
 
   /* conversion methods */
@@ -151,8 +367,8 @@ export class Date13 {
     return Date13.toGregorian(this);
   }
 
-  static toGregorian (date13: Date13): Date {
-    return new Date(date13.getTime());
+  static toGregorian (param: Date | Date13 | number): Date {
+    return toGregorianDate(param);
   }
 
   static fromGregorian (date: Date): Date13 {
@@ -173,7 +389,7 @@ export class Date13 {
       throw new TypeError('Argument must be a string type');
     }
 
-    if (constants.month13IsoRegexp.test(str)) {
+    if (constants.isoRegexp.test(str)) {
       const d13 = this.fromDate13ISOString(str);
 
       return d13.getTime();
@@ -182,16 +398,16 @@ export class Date13 {
     return Date.parse(str);
   }
 
+  public static toDateParts (date: Date13): DateParts {
+    return date.toDateParts();
+  }
+
   static fromISOString (str: string): Date13 {
     if (typeof str != 'string') {
       throw TypeError('Argument must be a string');
     }
 
-    if (constants.month13IsoRegexp.test(str)) {
-      return this.fromDate13ISOString(str);
-    } else {
-      return new Date13(Date.parse(str));
-    }
+    return this.fromDate13ISOString(str);
   }
 
   static fromDate13ISOString (str: string): Date13 {
@@ -199,8 +415,11 @@ export class Date13 {
       throw new TypeError('Argument must be a string');
     }
 
+    // is string is not ISO format
     if (!constants.isoRegexp.test(str)) {
-      return new Date13(Date.parse(str));
+      const milis = Date13.parse(str);
+
+      return new Date13(milis);
     }
 
     const isoString = str;
@@ -221,7 +440,8 @@ export class Date13 {
     let hours = h !== undefined ? parseInt(h) : 0;
     let minutes = m !== undefined ? parseInt(m) : 0;
     let seconds = s !== undefined ? parseInt(s) : 0;
-    let milliseconds = ms !== undefined ? parseInt(ms.padEnd(3, '0')) : 0;
+    let milliseconds =
+      ms !== undefined ? parseInt(utils.pad(ms, 'end', 3, '0')) : 0;
 
     if (!z) {
       const local = new Date(
@@ -247,15 +467,15 @@ export class Date13 {
       throw new TypeError('Argument must be a Date type');
     }
 
-    let transformedPattern = constants.isoPattern;
+    let transformedPattern = String(constants.isoPattern);
 
     // TODO remove any when Date13 will satisfy Date interface
     const replacers = getReplacersFromDate(date as any);
 
     for (const [key, val] of Object.entries(replacers)) {
       transformedPattern = transformedPattern.replace(
-        new RegExp(key, 'gi'),
-        String(val())
+        new RegExp(key, 'g'),
+        String(val.bind(replacers)())
       );
     }
 
@@ -263,10 +483,7 @@ export class Date13 {
   }
 
   static fromDate (date: Date | Date13): Date13 {
-    if (
-      !(date instanceof Date) &&
-      !(date instanceof Date13)
-    ) {
+    if (!(date instanceof Date) && !(date instanceof Date13)) {
       throw new TypeError('Argument must be a Date type');
     }
 
@@ -302,13 +519,19 @@ export class Date13 {
       }
     }
 
-    if (b && c) {
-      // year, month and date
-      const date = new Date(a, b, c, d, e, f, g);
-      return Date13.fromDate(date);
+    const parts = [a, b, c, d, e, f, g].filter(
+      part => typeof part === 'number'
+    ) as [number, number, number, number?, number?, number?, number?];
+
+    // year, month and date
+    if (parts.length > 1) {
+      // console.log('fromDate13Parts', parts);
+      const milis = fromDate13Parts(...parts);
+
+      return Date13.fromUnixMilliseconds(milis);
     } else {
       // milis
-      return Date13.fromUnixMilliseconds(a);
+      return Date13.fromUnixMilliseconds(parts[0]);
     }
   }
 
@@ -318,12 +541,13 @@ export class Date13 {
     }
 
     if (isNaN(milis)) {
-      throw new TypeError('Argument must be not NaN');
+      throw new TypeError('Invalid date value');
     }
 
-    const d13 = new Date13();
+    // console.log('fromUnixMilliseconds', milis);
 
-    d13.setBase(new Date(milis));
+    const d13 = new Date13();
+    d13.setBase(toGregorianDate(milis));
 
     return d13;
   }
@@ -334,7 +558,7 @@ export class Date13 {
     }
 
     if (isNaN(seconds)) {
-      throw new TypeError('Argument must be not NaN');
+      throw new TypeError('Invalid date value');
     }
 
     return Date13.fromUnixMilliseconds(seconds * 1000);
