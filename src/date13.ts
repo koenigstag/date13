@@ -70,16 +70,16 @@ export class Date13 {
   private updateTimestamp (timestampMilis: number, source: string) {
     this.timestampMilis = timestampMilis;
 
-    const {
-      year: utcYear,
-      month: utcMonthIndex,
-      date: utcDate,
-      hour: utcHour,
-      minute: utcMinute,
-      second: utcSecond,
-      milisecond: utcMilisecond,
-      timezoneOffset,
-    } = date13PartsFromMilis(timestampMilis);
+    // const {
+    //  year: utcYear,
+    //  month: utcMonthIndex,
+    //  date: utcDate,
+    //  hour: utcHour,
+    //  minute: utcMinute,
+    //  second: utcSecond,
+    //  milisecond: utcMilisecond,
+    //  timezoneOffset,
+    //} = date13PartsFromMilis(timestampMilis);
 
     // console.log('updateFromBase', {
     //   source,
@@ -87,14 +87,6 @@ export class Date13 {
     //   utcMonthIndex,
     //   utcDate,
     // });
-  }
-
-  public setBase (date: Date | Date13 | number) {
-    // console.log('setBase', date);
-    this.updateTimestamp(
-      typeof date === 'number' ? date : date.getTime(),
-      'setBase'
-    );
   }
 
   /* JS Date interface */
@@ -105,23 +97,11 @@ export class Date13 {
     return this.timestampMilis;
   }
 
-  private getLocalTime() {
-    return this.timistampMilis - this.getTimezoneOffsetInMilliseconds();
-  }
-
   public getUTCDay () {
     return this.toGregorian().getUTCDay();
   }
 
-  public getUTCWeekDay () {
-    return this.toGregorian().getDay();
-  }
-
   public getDay () {
-    return this.toGregorian().getDay();
-  }
-
-  public getWeekDay () {
     return this.toGregorian().getDay();
   }
 
@@ -134,38 +114,39 @@ export class Date13 {
   }
 
   public getFullYear () {
-    const localTimestamp = this.getLocalTime();
-    const { year: localYear } = date13PartsFromMilis(localTimestamp);
+    const { year: localYear } = getLocalDateParts();
 
     return localYear;
   }
 
   public getUTCFullYear () {
-    const { year: utcYear } = date13PartsFromMilis(this.timestampMilis);
+    const { year: utcYear } = getUTCDateParts();
 
     return utcYear;
   }
 
   public getMonth () {
-    const localTimestamp = this.getLocalTime();
-    const { month: localMonth } = date13PartsFromMilis(localTimestamp);
+    const { month: localMonth } = getLocalDateParts();
 
     return localMonth;
   }
 
   public getUTCMonth () {
-    return this.date13UTCMonthIndex;
+    const { month: utcMonth } = getUTCDateParts();
+
+    return utcMonth;
   }
 
   public getDate () {
-    const localTimestamp = this.getLocalTime();
-    const { date: localDate } = date13PartsFromMilis(localTimestamp);
+    const { date: localDate } = getLocalDateParts();
 
     return localDate;
   }
 
   public getUTCDate () {
-    return this.date13UTCDateIndex;
+    const { date: utcDate } = getUTCDateParts();
+
+    return utcDate;
   }
 
   public getHours () {
@@ -204,11 +185,7 @@ export class Date13 {
     return this.toGregorian().getTimezoneOffset();
   }
 
-  public getTimezoneOffsetInMilliseconds () {
-    return this.toGregorian().getTimezoneOffset() * 60 * 1000;
-  }
-
-  /* set methods */
+  /* setter methods */
 
   public setDate (date: number) {
     const d = this.toGregorian();
@@ -300,7 +277,7 @@ export class Date13 {
     this.setBase(d);
   }
 
-  /* system methods */
+  /* system interface methods */
 
   public valueOf () {
     return this.getTime();
@@ -324,33 +301,40 @@ export class Date13 {
     return this.toISOString();
   }
 
-  public toDateParts (): DateParts {
-    const year = this.getUTCFullYear();
-    const month = this.getUTCMonth();
-    const day = this.getUTCDate();
-    const hour = this.getUTCHours();
-    const minute = this.getUTCMinutes();
-    const second = this.getUTCSeconds();
-    const milisecond = this.getUTCMilliseconds();
-    const timezoneOffset = this.getTimezoneOffset();
-
-    return {
-      calendar: constants.date13CalendarName,
-      year,
-      month,
-      date: day,
-      hour,
-      minute,
-      second,
-      milisecond,
-      timezoneOffset,
-    };
-  }
-
   /* custom methods */
 
   public get isLeapYear () {
     return utils.isLeapYear(this.utcYear);
+  }
+
+  public getUTCTime () {
+    return this.getTime();
+  }
+
+  private getLocalTime () {
+    return this.getUTCTime() - this.getTimezoneOffsetInMilliseconds();
+  }
+
+  public getUTCWeekDay () {
+    return this.getUTCDay();
+  }
+
+  public getWeekDay () {
+    return this.getDay();
+  }
+
+  public getTimezoneOffsetInMilliseconds () {
+    return this.toGregorian().getTimezoneOffset() * 60 * 1000;
+  }
+
+  public getUTCDateParts (): DateParts {
+    const timestamp = this.getTime();
+    return date13PartsFromMilis(timestamp);
+  }
+
+  public getLocalDateParts (): DateParts {
+    const localTimestamp = this.getLocalTime();
+    return date13PartsFromMilis(localTimestamp);
   }
 
   /* conversion methods */
@@ -367,9 +351,9 @@ export class Date13 {
     return Date13.fromDate(date);
   }
 
-  // static UTC(year: number, month?: number, date?: number, hour?: number, minute?: number, second?: number, milisecond?: number): Date13 {
+  // TODO implement
+  // static UTC(year: number, month?: number, date?: number, hour?: number, minute?: number, second?: number, milisecond?: number): number {
   //   throw new Error('Not implemented');
-  //   // return new Date13(year, month, date, hour, minute, second, milisecond);
   // }
 
   static now () {
@@ -388,10 +372,6 @@ export class Date13 {
     }
 
     return Date.parse(str);
-  }
-
-  public static toDateParts (date: Date13): DateParts {
-    return date.toDateParts();
   }
 
   static fromISOString (str: string): Date13 {
@@ -435,23 +415,9 @@ export class Date13 {
     let milliseconds =
       ms !== undefined ? parseInt(utils.pad(ms, 'end', 3, '0')) : 0;
 
-    if (!z) {
-      const local = new Date(
-        year,
-        month,
-        day,
-        hours,
-        minutes,
-        seconds,
-        milliseconds
-      );
-      hours = local.getUTCHours();
-      minutes = local.getUTCMinutes();
-      seconds = local.getUTCSeconds();
-      milliseconds = local.getUTCMilliseconds();
-    }
+    // TODO rewrite to Date13.UTC or milisFromDate13Parts
 
-    return new Date13(year, month, day, hours, minutes, seconds, milliseconds);
+    throw new Error('Not implemented');
   }
 
   static toDate13ISOString (date: Date13): string {
@@ -461,7 +427,7 @@ export class Date13 {
 
     let transformedPattern = String(constants.isoPattern);
 
-    // TODO remove any when Date13 will satisfy Date interface
+    // TODO remove as any when Date13 will satisfy Date interface
     const replacers = getReplacersFromDate(date as any);
 
     for (const [key, val] of Object.entries(replacers)) {
@@ -517,7 +483,6 @@ export class Date13 {
 
     // year, month and date
     if (parts.length > 1) {
-      // console.log('fromDate13Parts', parts);
       const milis = fromDate13Parts(...parts);
 
       return Date13.fromUnixMilliseconds(milis);
@@ -536,12 +501,7 @@ export class Date13 {
       throw new TypeError('Invalid date value');
     }
 
-    // console.log('fromUnixMilliseconds', milis);
-
-    const d13 = new Date13();
-    d13.setBase(toGregorianDate(milis));
-
-    return d13;
+    return new Date13(milis);
   }
 
   static fromUnixSeconds (seconds: number): Date13 {
