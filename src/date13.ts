@@ -105,6 +105,10 @@ export class Date13 {
     return this.timestampMilis;
   }
 
+  private getLocalTime() {
+    return this.timistampMilis - this.getTimezoneOffsetInMilliseconds();
+  }
+
   public getUTCDay () {
     return this.toGregorian().getUTCDay();
   }
@@ -130,8 +134,8 @@ export class Date13 {
   }
 
   public getFullYear () {
-    const timezoneInMilis = this.getTimezoneOffsetInMiliseconds();
-    const { year: localYear } = date13PartsFromMilis(this.timestampMilis - timezoneInMilis);
+    const localTimestamp = this.getLocalTime();
+    const { year: localYear } = date13PartsFromMilis(localTimestamp);
 
     return localYear;
   }
@@ -143,8 +147,8 @@ export class Date13 {
   }
 
   public getMonth () {
-    const timezoneInMilis = this.getTimezoneOffsetInMiliseconds();
-    const { month: localMonth } = date13PartsFromMilis(this.timestampMilis - timezoneInMilis);
+    const localTimestamp = this.getLocalTime();
+    const { month: localMonth } = date13PartsFromMilis(localTimestamp);
 
     return localMonth;
   }
@@ -154,8 +158,8 @@ export class Date13 {
   }
 
   public getDate () {
-    const timezoneInMilis = this.getTimezoneOffsetInMiliseconds();
-    const { date: localDate } = date13PartsFromMilis(this.timestampMilis - timezoneInMilis);
+    const localTimestamp = this.getLocalTime();
+    const { date: localDate } = date13PartsFromMilis(localTimestamp);
 
     return localDate;
   }
@@ -200,7 +204,7 @@ export class Date13 {
     return this.toGregorian().getTimezoneOffset();
   }
 
-  public getTimezoneOffsetInMiliseconds () {
+  public getTimezoneOffsetInMilliseconds () {
     return this.toGregorian().getTimezoneOffset() * 60 * 1000;
   }
 
