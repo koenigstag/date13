@@ -188,94 +188,132 @@ export class Date13 {
 
   /* setter methods */
 
+  public setTime (time: number) {
+    const d = this.toGregorian();
+    d.setTime(time);
+    this.setBase(d);
+
+    return this.getTime();
+  }
+
   public setDate (date: number) {
     const d = this.toGregorian();
     d.setDate(date);
     this.setBase(d);
+
+    return this.getTime();
   }
 
   public setUTCDate (date: number) {
     const d = this.toGregorian();
     d.setUTCDate(date);
     this.setBase(d);
+
+    return this.getTime();
   }
 
   public setMonth (month: number) {
     const d = this.toGregorian();
     d.setMonth(month);
     this.setBase(d);
+
+    return this.getTime();
   }
 
   public setUTCMonth (month: number) {
     const d = this.toGregorian();
     d.setUTCMonth(month);
     this.setBase(d);
+
+    return this.getTime();
   }
 
   public setFullYear (year: number) {
     const d = this.toGregorian();
     d.setFullYear(year);
     this.setBase(d);
+
+    return this.getTime();
   }
 
   public setUTCFullYear (year: number) {
     const d = this.toGregorian();
     d.setUTCFullYear(year);
     this.setBase(d);
+
+    return this.getTime();
   }
 
-  public setHours (hour: number) {
+  public setHours (hours: number, minutes?: number, seconds?: number, milis?: number) {
     const d = this.toGregorian();
-    d.setHours(hour);
+    d.setHours(hours);
+
+    if (typeof minutes === 'number')
+      d.setMinutes(minutes);
+    if (typeof seconds === 'number')
+      d.setSeconds(seconds);
+    if (typeof milis === 'number')
+      d.setMilliseconds(milis);
+
     this.setBase(d);
+
+    return this.getTime();
   }
 
   public setUTCHours (hour: number) {
     const d = this.toGregorian();
     d.setUTCHours(hour);
     this.setBase(d);
+
+    return this.getTime();
   }
 
   public setMinutes (minute: number) {
     const d = this.toGregorian();
     d.setMinutes(minute);
     this.setBase(d);
+
+    return this.getTime();
   }
 
   public setUTCMinutes (minute: number) {
     const d = this.toGregorian();
     d.setUTCMinutes(minute);
     this.setBase(d);
+
+    return this.getTime();
   }
 
   public setSeconds (second: number) {
     const d = this.toGregorian();
     d.setSeconds(second);
     this.setBase(d);
+
+    return this.getTime();
   }
 
   public setUTCSeconds (second: number) {
     const d = this.toGregorian();
     d.setUTCSeconds(second);
     this.setBase(d);
+
+    return this.getTime();
   }
 
   public setMilliseconds (milisecond: number) {
     const d = this.toGregorian();
     d.setMilliseconds(milisecond);
     this.setBase(d);
+
+    return this.getTime();
   }
 
   public setUTCMilliseconds (milisecond: number) {
     const d = this.toGregorian();
     d.setUTCMilliseconds(milisecond);
     this.setBase(d);
-  }
 
-  public setTime (time: number) {
-    const d = this.toGregorian();
-    d.setTime(time);
-    this.setBase(d);
+    return this.getTime();
   }
 
   /* system interface methods */
