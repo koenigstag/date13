@@ -285,7 +285,7 @@ export class Date13 {
   }
 
   [Symbol.toPrimitive] (hint?: 'number' | 'string' | 'default') {
-    return hint === 'number' this.valueOf() : this.toString();
+    return hint === 'number' ? this.valueOf() : this.toString();
   }
 
   /* formatting methods */
