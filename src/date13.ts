@@ -305,7 +305,7 @@ export class Date13 {
   /* custom methods */
 
   public get isLeapYear () {
-    return utils.isLeapYear(this.utcYear);
+    return utils.isLeapYear(this.getUTCFullYear());
   }
 
   public getUTCTime () {
