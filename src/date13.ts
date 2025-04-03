@@ -383,9 +383,9 @@ export class Date13 {
   }
 
   // TODO implement
-  // static UTC(year: number, month?: number, date?: number, hour?: number, minute?: number, second?: number, milisecond?: number): number {
-  //   throw new Error('Not implemented');
-  // }
+  static UTC(year: number, monthIndex?: number, date?: number, hour?: number, minute?: number, second?: number, millisecond?: number): number {
+    return fromDate13Parts(year, monthIndex, date, hour, minute, second, millisecond);
+  }
 
   static now () {
     return Date.now();
@@ -402,6 +402,7 @@ export class Date13 {
       return d13.getTime();
     }
 
+    // TODO fix
     return Date.parse(str);
   }
 
@@ -434,11 +435,11 @@ export class Date13 {
 
     if (!match) throw new Error('Invalid Date13 ISO string');
 
-    const [, yearStr, monthStr, dayStr, h, m, s, ms, z] = match;
+    const [, yearStr, monthStr, dateStr, h, m, s, ms, z] = match;
 
     const year = parseInt(yearStr);
     const month = parseInt(monthStr) - 1;
-    const day = parseInt(dayStr);
+    const date = parseInt(dateStr);
 
     let hours = h !== undefined ? parseInt(h) : 0;
     let minutes = m !== undefined ? parseInt(m) : 0;
@@ -446,9 +447,14 @@ export class Date13 {
     let milliseconds =
       ms !== undefined ? parseInt(utils.pad(ms, 'end', 3, '0')) : 0;
 
-    // TODO rewrite to Date13.UTC or milisFromDate13Parts
+    let milis = Date13.UTC(year, month, date, hours, minutes, seconds, milliseconds);
 
-    throw new Error('Not implemented');
+    if (!z) {
+      const timezoneOffset = new Date().getTimezoneOffset();
+      milis -= timezoneOffset * 60 * 1000;
+    }
+
+    return new Date13(milis);
   }
 
   static toDate13ISOString (date: Date13): string {
@@ -459,7 +465,7 @@ export class Date13 {
     let transformedPattern = String(constants.isoPattern);
 
     // TODO remove as any when Date13 will satisfy Date interface
-    const replacers = getReplacersFromDate(date as any);
+    const replacers = getReplacersFromDate(date);
 
     for (const [key, val] of Object.entries(replacers)) {
       transformedPattern = transformedPattern.replace(
