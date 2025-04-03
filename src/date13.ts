@@ -284,6 +284,10 @@ export class Date13 {
     return this.getTime();
   }
 
+  [Symbol.toPrimitive] (hint?: 'number' | 'string' | 'default') {
+    return hint === 'number' this.valueOf() : this.toString();
+  }
+
   /* formatting methods */
 
   public toISOString () {
