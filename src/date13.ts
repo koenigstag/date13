@@ -115,37 +115,37 @@ export class Date13 {
   }
 
   public getFullYear () {
-    const { year: localYear } = getLocalDateParts();
+    const { year: localYear } = this.getLocalDateParts();
 
     return localYear;
   }
 
   public getUTCFullYear () {
-    const { year: utcYear } = getUTCDateParts();
+    const { year: utcYear } = this.getUTCDateParts();
 
     return utcYear;
   }
 
   public getMonth () {
-    const { month: localMonth } = getLocalDateParts();
+    const { month: localMonth } = this.getLocalDateParts();
 
     return localMonth;
   }
 
   public getUTCMonth () {
-    const { month: utcMonth } = getUTCDateParts();
+    const { month: utcMonth } = this.getUTCDateParts();
 
     return utcMonth;
   }
 
   public getDate () {
-    const { date: localDate } = getLocalDateParts();
+    const { date: localDate } = this.getLocalDateParts();
 
     return localDate;
   }
 
   public getUTCDate () {
-    const { date: utcDate } = getUTCDateParts();
+    const { date: utcDate } = this.getUTCDateParts();
 
     return utcDate;
   }
@@ -296,6 +296,10 @@ export class Date13 {
 
   public toJSON () {
     return this.toISOString();
+  }
+
+  public toDateParts () {
+    return this.getLocalDateParts()
   }
 
   // TODO refactor to String methods
