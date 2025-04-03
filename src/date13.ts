@@ -25,7 +25,7 @@ export class Date13 {
     hour?: number,
     minute?: number,
     second?: number,
-    milisecond?: number
+    millisecond?: number
   );
   constructor (
     a?: Date | Date13 | string | number,
