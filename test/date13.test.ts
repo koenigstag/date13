@@ -25,7 +25,7 @@ describe('Date13', () => {
   // TODO refactor
   it('should convert timestamp to Date13', () => {
     const d = new Date13(1743638400000);
-    expect(d.toISOString()).toBe('2025-04-08T00:00:00.000Z');
+    expect(d.toISOString()).toBe('2025-04-09T00:00:00.000Z');
   });
 
   // from date parts

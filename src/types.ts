@@ -18,7 +18,7 @@ export type DateParts = {
 
 export type DateInfo = {
   utcYear: number;
-  dayOfYearIndex: number;
+  dayOfYear: number;
   timeMs: number;
 };
 

@@ -6,13 +6,13 @@ describe('convert utils', () => {
     const dateInfo = milisToDateInfo(0);
 
     expect(dateInfo.utcYear).toBe(1970);
-    expect(dateInfo.dayOfYearIndex).toBe(0);
+    expect(dateInfo.dayOfYear).toBe(1);
   });
 
   it('should convert timestamp value dayOfYearIndex', () => {
     const dateInfo = milisToDateInfo(1743638400000);
 
     expect(dateInfo.utcYear).toBe(2025);
-    expect(dateInfo.dayOfYearIndex).toBe(92);
+    expect(dateInfo.dayOfYear).toBe(93);
   });
 });

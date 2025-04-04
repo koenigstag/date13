@@ -174,7 +174,7 @@ export function date13PartsFromMilis (timestamp: number): DateParts {
 
   const year = dateInfo.utcYear;
 
-  const dayOfYear = dateInfo.dayOfYearIndex;
+  const dayOfYear = dateInfo.dayOfYear;
 
   let monthIndex = 0;
   let date = dayOfYear;
@@ -215,14 +215,14 @@ export function milisToDateInfo (unixMs: number): DateInfo {
   const utcYear = date.getUTCFullYear();
   const startOfYear = Date.UTC(utcYear, 0, 0);
 
-  const dayOfYearIndex = Math.floor((unixMs - startOfYear) / constants.milisecondsPerDay);
+  const dayOfYear = Math.floor((unixMs - startOfYear) / constants.milisecondsPerDay);
 
   const timeMs =
     unixMs - Date.UTC(utcYear, date.getUTCMonth(), date.getUTCDate());
 
   return {
     utcYear,
-    dayOfYearIndex,
+    dayOfYear,
     timeMs,
   };
 }
@@ -249,7 +249,7 @@ export function datePartsToUnixMilis (
     days += utils.getDaysInMonth(year, m, type);
   }
 
-  days += date;
+  days += date - 1;
 
   const daysInMilis = days * constants.milisecondsPerDay;
 
