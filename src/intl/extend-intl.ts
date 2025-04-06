@@ -1,4 +1,4 @@
-import type { Date13TimeFormat as Date13TimeFormatClass } from "./date13-intl";
+import type { Date13TimeFormat as Date13TimeFormatClass } from "../date13-intl";
 
 declare global {
   namespace Intl {

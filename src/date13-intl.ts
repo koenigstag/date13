@@ -1,7 +1,7 @@
 import constants from './constants';
 import { Date13 } from './date13';
 import utils from './utils';
-import Date13Dictionary from './dictionary';
+import Date13Dictionary from './intl/dictionary';
 
 export interface Date13RangeFormatPart {
   type: Intl.DateTimeFormatPartTypes;

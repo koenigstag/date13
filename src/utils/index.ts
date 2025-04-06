@@ -1,10 +1,10 @@
-import constants from './constants';
+import constants from '../constants';
 import type {
   CalendarType,
   Date13MonthLengthArray,
   GregorianMonthLengthArray,
   MonthLengthArrayType,
-} from './types';
+} from '../types';
 
 const jsPolyfills = {
   isNil (value: any): value is null | undefined {

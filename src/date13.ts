@@ -1,7 +1,7 @@
 import { CalendarEngine } from './calendar-engine';
 import constants from './constants';
 import { DateAPI } from './date.api';
-import { formatDate, getReplacersFromDate } from './format';
+import { formatDate } from './utils/format';
 import { DateParts } from './types';
 import utils from './utils';
 

@@ -1,4 +1,4 @@
-import utils from './utils';
+import utils from '.';
 
 export function getReplacersFromDate (date: Date) {
   const padStart_2_0 = (val: any) => utils.pad(val, 'start', 2, '0');
