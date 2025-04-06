@@ -1,9 +1,10 @@
-import { CalendarEngine } from './calendar-engine';
-import constants from './constants';
-import { DateAPI } from './date.api';
-import { formatDate } from './utils/format';
-import { DateParts } from './types';
-import utils from './utils';
+import { CalendarEngine } from "./calendar-engine";
+import constants from "./constants";
+import { DateAPI } from "./date.api";
+import { formatDate } from "./utils/format";
+import { DateParts } from "./types";
+import utils from "./utils";
+import { Date13TimeFormat } from "./date13-intl";
 
 export class Date13 extends DateAPI {
   static readonly constants = constants;
@@ -22,7 +23,7 @@ export class Date13 extends DateAPI {
     second?: number,
     millisecond?: number
   );
-  constructor (
+  constructor(
     a?: Date | Date13 | string | number,
     b?: number,
     c?: number,
@@ -34,7 +35,7 @@ export class Date13 extends DateAPI {
     super(a, b, c, d, e, f, g);
   }
 
-  protected UTC (
+  protected UTC(
     year: number,
     monthIndex: number = 0,
     date: number = 1,
@@ -57,7 +58,7 @@ export class Date13 extends DateAPI {
     return timestmap;
   }
 
-  public static UTC (
+  public static UTC(
     year: number,
     monthIndex?: number,
     date?: number,
@@ -77,9 +78,9 @@ export class Date13 extends DateAPI {
     );
   }
 
-  protected parse (str: string): number {
-    if (typeof str != 'string') {
-      throw new TypeError('Argument must be a string type');
+  protected parse(str: string): number {
+    if (typeof str != "string") {
+      throw new TypeError("Argument must be a string type");
     }
 
     if (constants.isoRegexp.test(str)) {
@@ -97,13 +98,11 @@ export class Date13 extends DateAPI {
 
   /* override super class */
 
-  protected getDatePartsFromTimestamp (timestampMs: number): DateParts {
+  protected getDatePartsFromTimestamp(timestampMs: number): DateParts {
     return CalendarEngine.Ordo13.toDateParts(timestampMs);
   }
 
-  protected getTimestampFromDateParts (
-    dateParts: Partial<DateParts>
-  ): number {
+  protected getTimestampFromDateParts(dateParts: Partial<DateParts>): number {
     return this.UTC(
       dateParts.year as number,
       dateParts.month,
@@ -121,11 +120,11 @@ export class Date13 extends DateAPI {
    * @description Returns the date in ISO format (YYYY-MM-DDTHH:mm:ss.sssZ)
    * @returns {string} Date13-ISO string
    */
-  public toJSON (): string {
+  public toJSON(): string {
     return this.toISOString();
   }
 
-  public toISOString (): string {
+  public toISOString(): string {
     return this.toDate13ISOString();
   }
 
@@ -135,15 +134,24 @@ export class Date13 extends DateAPI {
    * @description Returns the date in string format (not ISO)
    * @returns {string} Date13 string representation
    */
-  public toString (): string {
-    return this.toGregorian().toString();
+  public toString(): string {
+    return new Date13TimeFormat(undefined, {
+      weekday: "short",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      timeZoneName: "short",
+    }).format(this);
   }
 
   /**
    * @description Returns the date in string format (not ISO)
    * @returns {string} Date13 string representation
    */
-  public toDateString (): string {
+  public toDateString(): string {
     return this.toGregorian().toDateString();
   }
 
@@ -151,7 +159,7 @@ export class Date13 extends DateAPI {
    * @description Returns the date in string format (not ISO)
    * @returns {string} Date13 string representation
    */
-  public toTimeString (): string {
+  public toTimeString(): string {
     return this.toGregorian().toTimeString();
   }
 
@@ -159,7 +167,7 @@ export class Date13 extends DateAPI {
    * @description Returns the date in string format (not ISO)
    * @returns {string} Date13 string representation
    */
-  public toUTCString (): string {
+  public toUTCString(): string {
     return this.toGregorian().toUTCString();
   }
 
@@ -167,24 +175,43 @@ export class Date13 extends DateAPI {
    * @description Returns the date in string format using `Intl.DateTimeFormat`
    * @returns {string} Date13 string representation
    */
-  public toLocaleDateString (locales?: any, options?: any): string {
-    return this.toGregorian().toLocaleDateString(locales, options);
+  public toLocaleDateString(
+    locales?: string | readonly string[],
+    options?: Intl.DateTimeFormatOptions
+  ): string {
+    return new Date13TimeFormat(locales, {
+      ...options,
+      year: options?.year ?? "numeric",
+      month: options?.month ?? "long",
+      day: options?.day ?? "numeric",
+    }).format(this);
   }
 
   /**
    * @description Returns the date in string format using `Intl.DateTimeFormat`
    * @returns {string} Date13 string representation
    */
-  public toLocaleTimeString (locales?: any, options?: any): string {
-    return this.toGregorian().toLocaleTimeString(locales, options);
+  public toLocaleTimeString(
+    locales?: string | string[],
+    options?: Intl.DateTimeFormatOptions
+  ): string {
+    return new Intl.DateTimeFormat(locales, {
+      ...options,
+      hour: options?.hour ?? "2-digit",
+      minute: options?.minute ?? "2-digit",
+      second: options?.second ?? "2-digit",
+    }).format(this.toGregorian());
   }
 
   /**
    * @description Returns the date in string format using `Intl.DateTimeFormat`
    * @returns {string} Date13 string representation
    */
-  public toLocaleString (locales?: any, options?: any): string {
-    return this.toGregorian().toLocaleString(locales, options);
+  public toLocaleString(
+    locales?: string | readonly string[],
+    options?: Intl.DateTimeFormatOptions
+  ): string {
+    return new Date13TimeFormat(locales, options).format(this);
   }
 
   /* custom methods */
@@ -193,7 +220,7 @@ export class Date13 extends DateAPI {
    * @description Returns the date in ISO format (YYYY-MM-DDTHH:mm:ss.sssZ)
    * @returns {string} Date13-ISO string
    */
-  public toDate13ISOString (): string {
+  public toDate13ISOString(): string {
     return Date13.toDate13ISOString(this);
   }
 
@@ -201,7 +228,7 @@ export class Date13 extends DateAPI {
    * @description Returns the quarter of the year (1-4)
    * @returns {number} quarter of the year (1-4)
    */
-  public getQuarter (): number {
+  public getQuarter(): number {
     const utcMonth = this.getUTCMonth();
 
     return Math.floor(utcMonth / constants.monthsInYear13 / 4) + 1;
@@ -211,7 +238,7 @@ export class Date13 extends DateAPI {
    * @description Returns boolean value indicating if the year is a leap year
    * @returns {boolean} true if the year is a leap year, false otherwise
    */
-  public get isLeapYear (): boolean {
+  public get isLeapYear(): boolean {
     return utils.isLeapYear(this.getUTCFullYear());
   }
 
@@ -219,7 +246,7 @@ export class Date13 extends DateAPI {
    * @description Returns UTC timestamp in milliseconds since 1970-01-01T00:00:00Z
    * @returns {number} timestamp in milliseconds
    */
-  public getUTCTime (): number {
+  public getUTCTime(): number {
     return this.getTime();
   }
 
@@ -227,7 +254,7 @@ export class Date13 extends DateAPI {
    * @description Returns local time in milliseconds since 1970-01-01T00:00:00Z
    * @returns {number} timestamp in milliseconds
    */
-  public getLocalTime (): number {
+  public getLocalTime(): number {
     return super.getLocalTime();
   }
 
@@ -237,7 +264,7 @@ export class Date13 extends DateAPI {
    * @description Convert Date13 instance to JS Date instance
    * @returns {Date} JS Date instance
    */
-  public toGregorian (): Date {
+  public toGregorian(): Date {
     return Date13.toGregorian(this);
   }
 
@@ -246,8 +273,8 @@ export class Date13 extends DateAPI {
    * @param param Date13 instance (or Date or unix timestamp)
    * @returns {Date} JS Date instance
    */
-  public static toGregorian (param: Date | Date13 | number): Date {
-    if (typeof param === 'number') {
+  public static toGregorian(param: Date | Date13 | number): Date {
+    if (typeof param === "number") {
       return new Date(param);
     }
 
@@ -259,7 +286,7 @@ export class Date13 extends DateAPI {
    * @param {Date} date JS Date instance
    * @returns {Date13} Date instance
    */
-  public static fromGregorian (date: Date | Date13): Date13 {
+  public static fromGregorian(date: Date | Date13): Date13 {
     return Date13.fromDate(date);
   }
 
@@ -268,9 +295,9 @@ export class Date13 extends DateAPI {
    * @param {string} str ISO string
    * @returns {Date13} Date13 instance
    */
-  protected fromISOString (str: string): Date13 {
-    if (typeof str != 'string') {
-      throw TypeError('Argument must be a string');
+  protected fromISOString(str: string): Date13 {
+    if (typeof str != "string") {
+      throw TypeError("Argument must be a string");
     }
 
     return this.fromDate13ISOString(str);
@@ -281,9 +308,9 @@ export class Date13 extends DateAPI {
    * @param {string} str Date13-ISO string
    * @returns {Date13} Date13 instance
    */
-  protected fromDate13ISOString (str: string): Date13 {
-    if (typeof str != 'string') {
-      throw new TypeError('Argument must be a string');
+  protected fromDate13ISOString(str: string): Date13 {
+    if (typeof str != "string") {
+      throw new TypeError("Argument must be a string");
     }
 
     // is string is not ISO format
@@ -300,7 +327,7 @@ export class Date13 extends DateAPI {
         isoString
       );
 
-    if (!match) throw new Error('Invalid Date13 ISO string');
+    if (!match) throw new Error("Invalid Date13 ISO string");
 
     const [, yearStr, monthStr, dateStr, h, m, s, ms, z] = match;
 
@@ -312,7 +339,7 @@ export class Date13 extends DateAPI {
     let minutes = m !== undefined ? parseInt(m) : 0;
     let seconds = s !== undefined ? parseInt(s) : 0;
     let milliseconds =
-      ms !== undefined ? parseInt(utils.pad(ms, 'end', 3, '0')) : 0;
+      ms !== undefined ? parseInt(utils.pad(ms, "end", 3, "0")) : 0;
 
     let milis = Date13.UTC(
       year,
@@ -326,7 +353,10 @@ export class Date13 extends DateAPI {
 
     if (!z) {
       const d13 = new Date13();
-      milis = d13.calculateLocalFromUTCTimestamp(milis, d13.getDefaultTimezoneOffset());
+      milis = d13.calculateLocalFromUTCTimestamp(
+        milis,
+        d13.getDefaultTimezoneOffset()
+      );
     }
 
     return new Date13(milis);
@@ -337,9 +367,9 @@ export class Date13 extends DateAPI {
    * @param {Date13} date Date13 instance
    * @returns {string} Date13-ISO string
    */
-  public static toDate13ISOString (date: Date13): string {
+  public static toDate13ISOString(date: Date13): string {
     if (!(date instanceof Date13)) {
-      throw new TypeError('Argument must be a Date type');
+      throw new TypeError("Argument must be a Date type");
     }
 
     return formatDate(date, constants.isoPattern);
@@ -350,9 +380,9 @@ export class Date13 extends DateAPI {
    * @param {Date} date a Date-like object that should have getTime() method that returns a timestamp in milliseconds
    * @returns {Date13} Date13 instance
    */
-  public static fromDate (date: Date | Date13): Date13 {
-    if (typeof date !== 'object' || typeof date.getTime !== 'function') {
-      throw new TypeError('Argument must be a Date type');
+  public static fromDate(date: Date | Date13): Date13 {
+    if (typeof date !== "object" || typeof date.getTime !== "function") {
+      throw new TypeError("Argument must be a Date type");
     }
 
     return Date13.fromUnixMilliseconds(date.getTime());
@@ -363,13 +393,13 @@ export class Date13 extends DateAPI {
    * @param {number} milis Unix milliseconds
    * @returns {Date13} Date13 instance
    */
-  public static fromUnixMilliseconds (milis: number): Date13 {
-    if (typeof milis != 'number') {
-      throw new TypeError('Argument must be a number');
+  public static fromUnixMilliseconds(milis: number): Date13 {
+    if (typeof milis != "number") {
+      throw new TypeError("Argument must be a number");
     }
 
     if (isNaN(milis)) {
-      throw new TypeError('Invalid date value');
+      throw new TypeError("Invalid date value");
     }
 
     return new Date13(milis);
@@ -380,13 +410,13 @@ export class Date13 extends DateAPI {
    * @param {number} seconds Unix seconds
    * @returns {Date13} Date13 instance
    */
-  public static fromUnixSeconds (seconds: number): Date13 {
-    if (typeof seconds != 'number') {
-      throw new TypeError('Argument must be a number');
+  public static fromUnixSeconds(seconds: number): Date13 {
+    if (typeof seconds != "number") {
+      throw new TypeError("Argument must be a number");
     }
 
     if (isNaN(seconds)) {
-      throw new TypeError('Invalid date value');
+      throw new TypeError("Invalid date value");
     }
 
     return Date13.fromUnixMilliseconds(seconds * 1000);
