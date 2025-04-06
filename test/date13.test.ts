@@ -31,57 +31,58 @@ describe('Date13', () => {
   // from date parts
   it('should convert year and month to Date13', () => {
     const d = new Date13(2025, 2);
-    expect(d.getUTCFullYear()).toBe(2025);
-    expect(d.getUTCMonth()).toBe(2);
-    expect(d.getUTCDate()).toBe(1);
-    expect(d.getUTCHours()).toBe(0);
-    expect(d.getUTCMinutes()).toBe(0);
-    expect(d.getUTCSeconds()).toBe(0);
-    expect(d.getUTCMilliseconds()).toBe(0);
+
+    expect(d.getFullYear()).toBe(2025);
+    expect(d.getMonth()).toBe(2);
+    expect(d.getDate()).toBe(1);
+    expect(d.getHours()).toBe(0);
+    expect(d.getMinutes()).toBe(0);
+    expect(d.getSeconds()).toBe(0);
+    expect(d.getMilliseconds()).toBe(0);
   });
 
   it('should convert year and month to Date13', () => {
     const d = new Date13(2025, 2);
-    expect(d.getUTCFullYear()).toBe(2025);
-    expect(d.getUTCMonth()).toBe(2);
-    expect(d.getUTCDate()).toBe(1);
-    expect(d.getUTCHours()).toBe(0);
-    expect(d.getUTCMinutes()).toBe(0);
-    expect(d.getUTCSeconds()).toBe(0);
-    expect(d.getUTCMilliseconds()).toBe(0);
+    expect(d.getFullYear()).toBe(2025);
+    expect(d.getMonth()).toBe(2);
+    expect(d.getDate()).toBe(1);
+    expect(d.getHours()).toBe(0);
+    expect(d.getMinutes()).toBe(0);
+    expect(d.getSeconds()).toBe(0);
+    expect(d.getMilliseconds()).toBe(0);
   });
 
   it('should convert 2025-02-27 to Date13', () => {
     const d = new Date13(2025, 2, 27);
-    expect(d.getUTCFullYear()).toBe(2025);
-    expect(d.getUTCMonth()).toBe(2);
-    expect(d.getUTCDate()).toBe(27);
-    expect(d.getUTCHours()).toBe(0);
-    expect(d.getUTCMinutes()).toBe(0);
-    expect(d.getUTCSeconds()).toBe(0);
-    expect(d.getUTCMilliseconds()).toBe(0);
+    expect(d.getFullYear()).toBe(2025);
+    expect(d.getMonth()).toBe(2);
+    expect(d.getDate()).toBe(27);
+    expect(d.getHours()).toBe(0);
+    expect(d.getMinutes()).toBe(0);
+    expect(d.getSeconds()).toBe(0);
+    expect(d.getMilliseconds()).toBe(0);
   });
 
   it('should correctly overflow 29th day', () => {
     const d = new Date13(2025, 2, 29);
-    expect(d.getUTCFullYear()).toBe(2025);
-    expect(d.getUTCMonth()).toBe(3);
-    expect(d.getUTCDate()).toBe(1);
-    expect(d.getUTCHours()).toBe(0);
-    expect(d.getUTCMinutes()).toBe(0);
-    expect(d.getUTCSeconds()).toBe(0);
-    expect(d.getUTCMilliseconds()).toBe(0);
+    expect(d.getFullYear()).toBe(2025);
+    expect(d.getMonth()).toBe(3);
+    expect(d.getDate()).toBe(1);
+    expect(d.getHours()).toBe(0);
+    expect(d.getMinutes()).toBe(0);
+    expect(d.getSeconds()).toBe(0);
+    expect(d.getMilliseconds()).toBe(0);
   });
 
   it('should oveflow to 13th month after Dec 31', () => {
     const d = new Date13(2025, 11, 31);
-    expect(d.getUTCFullYear()).toBe(2025);
-    expect(d.getUTCMonth()).toBe(12);
-    expect(d.getUTCDate()).toBe(3);
-    expect(d.getUTCHours()).toBe(0);
-    expect(d.getUTCMinutes()).toBe(0);
-    expect(d.getUTCSeconds()).toBe(0);
-    expect(d.getUTCMilliseconds()).toBe(0);
+    expect(d.getFullYear()).toBe(2025);
+    expect(d.getMonth()).toBe(12);
+    expect(d.getDate()).toBe(3);
+    expect(d.getHours()).toBe(0);
+    expect(d.getMinutes()).toBe(0);
+    expect(d.getSeconds()).toBe(0);
+    expect(d.getMilliseconds()).toBe(0);
   });
 
   /* negative test cases */
