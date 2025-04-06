@@ -9,10 +9,10 @@ const constants = {
 
   // axiomatic
   gregorianCalendarName: 'gregorian',
-  milisInSecond: 1000,
-  secondsInMinute: 60,
-  minutesInHour: 60,
-  hoursInDay: 24,
+  millisecondsPerSecond: 1000,
+  secondsPerMinute: 60,
+  minutesPerHour: 60,
+  hoursPerDay: 24,
   milisecondsPerDay: 24 * 60 * 60 * 1000,
   daysInWeek: 7,
   monthsInYearGregorian: 12,

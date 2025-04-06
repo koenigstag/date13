@@ -89,7 +89,7 @@ export class Date13TimeFormat {
       hour,
       minute,
       second,
-      milisecond,
+      millisecond,
     } = date.toDateParts();
 
     const locale = this.locale;
