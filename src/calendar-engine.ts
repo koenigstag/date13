@@ -1,5 +1,5 @@
-import constants from './constants';
-import { DateParts, Delta } from './types';
+import constants from "./constants";
+import { DateParts, Delta } from "./types";
 
 export interface CalendarConfig {
   calendarName: string;
@@ -45,7 +45,7 @@ export const GregorianCalendarConfig: CalendarConfig = {
 
   getIsLeapYear: isGregorianLeapYear,
 
-  getYearOfEra (daysOfEra: number): number {
+  getYearOfEra(daysOfEra: number): number {
     let year = 0;
     let days = 0;
     while (year < 400) {
@@ -57,7 +57,7 @@ export const GregorianCalendarConfig: CalendarConfig = {
     return year;
   },
 
-  getDayOfYear (daysOfEra: number, yearOfEra: number): number {
+  getDayOfYear(daysOfEra: number, yearOfEra: number): number {
     let days = 0;
     for (let y = 0; y < yearOfEra; y++) {
       days += isGregorianLeapYear(y) ? 366 : 365;
@@ -65,7 +65,7 @@ export const GregorianCalendarConfig: CalendarConfig = {
     return daysOfEra - days;
   },
 
-  getMonths (year: number): number[] {
+  getMonths(year: number): number[] {
     return [
       31,
       isGregorianLeapYear(year) ? 29 : 28,
@@ -83,7 +83,7 @@ export const GregorianCalendarConfig: CalendarConfig = {
   },
 };
 
-function isGregorianLeapYear (year: number): boolean {
+function isGregorianLeapYear(year: number): boolean {
   if (year % 4 !== 0) return false;
   if (year % 100 === 0 && year % 400 !== 0) return false;
   if (year % 3200 === 0 && year % 12800 !== 0) return false;
@@ -95,7 +95,7 @@ export const Ordo13CalendarConfig: CalendarConfig = {
 
   calendarName: constants.date13CalendarName,
 
-  getMonths (year) {
+  getMonths(year) {
     return [
       28,
       28,
@@ -118,7 +118,7 @@ export const Ordo13CalendarConfig: CalendarConfig = {
 };
 
 export const AMC_MSD_CalendarConfig: CalendarConfig = {
-  calendarName: 'amc_msd',
+  calendarName: "amc_msd",
 
   millisPerDay: 88775244.147, // mars sol duration in milliseconds
   daysToEpoch: 69972,
@@ -134,7 +134,7 @@ export const AMC_MSD_CalendarConfig: CalendarConfig = {
 
   getIsLeapYear: isAMCLeapYear,
 
-  getYearOfEra (daysOfEra: number): number {
+  getYearOfEra(daysOfEra: number): number {
     let year = 0;
     let days = 0;
     while (year < 100) {
@@ -146,7 +146,7 @@ export const AMC_MSD_CalendarConfig: CalendarConfig = {
     return year;
   },
 
-  getDayOfYear (daysOfEra: number, yearOfEra: number): number {
+  getDayOfYear(daysOfEra: number, yearOfEra: number): number {
     let days = 0;
     for (let y = 0; y < yearOfEra; y++) {
       days += isAMCLeapYear(y) ? 669 : 668;
@@ -154,7 +154,7 @@ export const AMC_MSD_CalendarConfig: CalendarConfig = {
     return daysOfEra - days;
   },
 
-  getMonths (year: number): number[] {
+  getMonths(year: number): number[] {
     // divide a year to 24 months 28 sol (day) each + 1 in the end
     const base = Array(24).fill(28); // 24 months 28 sol each = 672
     const correction = isAMCLeapYear(year) ? -3 : -4; // to calc 669 / 668
@@ -163,66 +163,70 @@ export const AMC_MSD_CalendarConfig: CalendarConfig = {
   },
 };
 
-function isAMCLeapYear (year: number): boolean {
+function isAMCLeapYear(year: number): boolean {
   const current = (year + 1) * 0.5907;
   const previous = year * 0.5907;
   return Math.floor(current) > Math.floor(previous);
 }
 
 export class CalendarEngine {
-  constructor (private readonly config: CalendarConfig) {}
+  constructor(private readonly config: CalendarConfig) {}
 
-  public static get Gregorian () {
+  public static get Gregorian() {
     return this.create(GregorianCalendarConfig);
   }
 
-  public static get Ordo13 () {
+  public static get Ordo13() {
     return this.create(Ordo13CalendarConfig);
   }
 
-  public static get AMC_MSD () {
+  public static get AMC_MSD() {
     return this.create(AMC_MSD_CalendarConfig);
   }
 
-  public static create (config: CalendarConfig): CalendarEngine {
+  public static create(config: CalendarConfig): CalendarEngine {
     return new CalendarEngine(config);
   }
 
-  public toEpochValue (timestamp: number): number {
+  public toEpochValue(timestamp: number): number {
     return this.config.toEpochScale
       ? this.config.toEpochScale(timestamp)
       : timestamp;
   }
 
-  public fromEpochValue (epochValue: number): number {
+  public fromEpochValue(epochValue: number): number {
     return this.config.fromEpochScale
       ? this.config.fromEpochScale(epochValue)
       : epochValue;
   }
 
-  public isSameDay (ts1: number, ts2: number): boolean {
-    const d1 = Math.floor(ts1 / this.millisecondsPerDay);
-    const d2 = Math.floor(ts2 / this.millisecondsPerDay);
+  public isSameDay(ts1: number | Date, ts2: number | Date): boolean {
+    const d1 = Math.floor(
+      this.getDaysInMilliseconds(typeof ts1 === "number" ? ts1 : ts1.getTime())
+    );
+    const d2 = Math.floor(
+      this.getDaysInMilliseconds(typeof ts2 === "number" ? ts2 : ts2.getTime())
+    );
     return d1 === d2;
   }
 
-  public get calendarName (): string {
+  public get calendarName(): string {
     return this.config.calendarName;
   }
 
-  public get daysInEra (): number {
+  public get daysInEra(): number {
     return this.config.daysInEra;
   }
 
-  public get yearsInEra (): number {
+  public get yearsInEra(): number {
     return this.config.yearsInEra;
   }
 
-  public get daysToEpoch (): number {
+  public get daysToEpoch(): number {
     return this.config.daysToEpoch;
   }
 
-  public get millisecondsPerDay (): number {
+  public get millisecondsPerDay(): number {
     if (this.config.millisPerDay) {
       return this.config.millisPerDay;
     }
@@ -232,83 +236,102 @@ export class CalendarEngine {
     return hpd * mph * spm * mps;
   }
 
-  public getEraIndexFromDays (days: number): number {
+  public getEraIndexFromDays(days: number): number {
     return Math.floor(days / this.daysInEra);
   }
 
-  public getEraIndexFromYear (year: number): number {
+  public getEraIndexFromYear(year: number): number {
     return Math.floor(year / this.yearsInEra);
   }
 
-  public getYearIndexInEra (years: number): number {
+  public getYearIndexInEra(years: number): number {
     return years % this.yearsInEra;
   }
 
-  public getDaysIntoCurrentEra (era: number): number {
+  public getDaysIntoCurrentEra(era: number): number {
     return era % this.daysInEra;
   }
 
-  public getTotalDaysBeforeEra (fullEras: number): number {
+  public getTotalDaysBeforeEra(fullEras: number): number {
     return fullEras * this.daysInEra;
   }
 
-  public getTotalYearsBeforeEra (eras: number): number {
+  public getTotalYearsBeforeEra(eras: number): number {
     return eras * this.yearsInEra;
   }
 
-  public getMillisecondsInDays (days: number): number {
+  public getMillisecondsInDays(days: number): number {
     return days * this.millisecondsPerDay;
   }
 
-  public getDaysInMilliseconds (ms: number): number {
+  public getDaysInMilliseconds(ms: number): number {
     return ms / this.millisecondsPerDay;
   }
 
-  public getTotalMonthsBeforeYear (year: number): number {
+  public getTotalMonthsBeforeYear(year: number): number {
     return year * this.getMonthsPerYear();
   }
 
-  public getMonthIndexInYear (month: number): number {
+  public getMonthIndexInYear(month: number): number {
     return month % this.getMonthsPerYear();
   }
 
-  public getYearFromTotalMonths (months: number): number {
+  public getYearFromTotalMonths(months: number): number {
     return Math.floor(months / this.getMonthsPerYear());
   }
 
-  public isLeapYear (year: number): boolean {
+  public isLeapYear(year: number): boolean {
     return this.config.getIsLeapYear(year);
   }
 
-  public getMonths (year: number): number[] {
+  public getMonths(year: number): number[] {
     return this.config.getMonths(year);
   }
 
-  public getDaysInMonth (year: number, month: number): number {
-    return this.getMonths(year)[month];
+  public getDaysInMonth(year: number, month: number): number {
+    const { year: normalizedYear, month: normalizedMonth } =
+      this.normalizeMonth(year, month);
+
+    const months = this.getMonths(normalizedYear);
+    return months[normalizedMonth];
   }
 
-  public getMonthsPerYear (): number {
+  public getMonthsPerYear(): number {
     return this.getMonths(1).length;
   }
 
-  public getYearIndexFromDaysOfEra (daysOfEra: number): number {
+  public getYearIndexFromDaysOfEra(daysOfEra: number): number {
     return this.config.getYearOfEra(daysOfEra);
   }
 
-  public getDayOffsetInYear (daysOfEra: number, yearOfEra: number) {
+  public getDayOffsetInYear(daysOfEra: number, yearOfEra: number) {
     return this.config.getDayOfYear(daysOfEra, yearOfEra);
   }
 
-  public getTotalDays (year: number, month?: number): number {
+  public getTotalDays(year: number, month?: number): number {
     const months = this.getMonths(year);
     return months
       .slice(0, month ?? months.length)
       .reduce((sum, d) => sum + d, 0);
   }
 
-  public fromDateParts (dateParts: DateParts): number {
-    const { year, month, date, hour, minute, second, millisecond } = dateParts;
+  public fromDateParts(dateParts: DateParts): number {
+    if (
+      [
+        dateParts.year,
+        dateParts.month,
+        dateParts.date,
+        dateParts.hour,
+        dateParts.minute,
+        dateParts.second,
+        dateParts.millisecond,
+      ].some((v) => isNaN(v))
+    ) {
+      return NaN;
+    }
+
+    const normalized = this.normalizeDateParts(dateParts);
+    const { year, month, date, hour, minute, second, millisecond } = normalized;
 
     const fullEras = this.getEraIndexFromYear(year);
     const yearOfEra = this.getYearIndexInEra(year);
@@ -338,34 +361,7 @@ export class CalendarEngine {
     return this.toEpochValue(rawTimestamp);
   }
 
-  /*
-    const { config } = this;
-    const { year, month, day, hour, minute, second, millisecond } = dateParts;
-
-    const months = config.getMonths(year);
-
-    let dayOfYear = this.getDaysInYear(year, month) + day - 1;
-
-    const fullEras = this.calculateEraFromYear(year);
-    const yearOfEra = year % config.yearsInEra;
-
-    let totalDays = fullEras * config.daysInEra;
-    const baseYear = fullEras * config.yearsInEra;
-    for (let y = 0; y < yearOfEra; y++) {
-      const yAbs = baseYear + y;
-      totalDays += config.getMonths(yAbs).reduce((s, d) => s + d, 0);
-    }
-
-    totalDays += dayOfYear;
-    totalDays -= config.daysToEpoch;
-
-    const rawMs = this.getMillisecondsFromTimeParts(hour, minute, second, millisecond);
-    const totalMs = this.calculateMillisecondsInDays(totalDays) + rawMs;
-
-    return this.toEpochValue(totalMs);
-  */
-
-  public toDateParts (timestamp: number): DateParts {
+  public toDateParts(timestamp: number): DateParts {
     if (isNaN(timestamp)) {
       return {
         calendar: this.calendarName,
@@ -406,7 +402,7 @@ export class CalendarEngine {
     };
   }
 
-  public add (timestamp: number, delta: Delta): number {
+  public add(timestamp: number, delta: Delta): number {
     const parts = this.toDateParts(timestamp);
     let { year, month, date, hour, minute, second, millisecond } = parts;
 
@@ -455,7 +451,7 @@ export class CalendarEngine {
     return dayAdjusted + extraMs;
   }
 
-  public sub (timestamp: number, delta: Delta): number {
+  public sub(timestamp: number, delta: Delta): number {
     return this.add(timestamp, {
       years: delta.years ? -delta.years : 0,
       months: delta.months ? -delta.months : 0,
@@ -467,7 +463,7 @@ export class CalendarEngine {
     });
   }
 
-  public set (timestamp: number, dateParts: Partial<DateParts>): number {
+  public set(timestamp: number, dateParts: Partial<DateParts>): number {
     const current = this.toDateParts(timestamp);
     return this.fromDateParts({
       calendar: current.calendar,
@@ -481,7 +477,7 @@ export class CalendarEngine {
     });
   }
 
-  private getTimeStructure () {
+  private getTimeStructure() {
     const c = this.config;
     return {
       hpd: c.hoursPerDay ?? constants.hoursPerDay,
@@ -491,7 +487,7 @@ export class CalendarEngine {
     };
   }
 
-  private getMillisecondsFromTimeParts (
+  private getMillisecondsFromTimeParts(
     hour: number,
     minute: number,
     second: number,
@@ -508,7 +504,7 @@ export class CalendarEngine {
     return (millisAbsolute / millisPerDay) * this.millisecondsPerDay;
   }
 
-  private getTimePartsFromMilliseconds (ms: number) {
+  private getTimePartsFromMilliseconds(ms: number) {
     const { hpd, mph, spm } = this.getTimeStructure();
 
     const msPerHour = this.millisecondsPerDay / hpd;
@@ -529,7 +525,7 @@ export class CalendarEngine {
     return { hour, minute, second, millisecond };
   }
 
-  private getDateFromDays (daysSinceEpoch: number) {
+  private getDateFromDays(daysSinceEpoch: number) {
     const totalDays = daysSinceEpoch + this.daysToEpoch;
     const era = this.getEraIndexFromDays(totalDays);
     const daysOfEra = totalDays - this.getTotalDaysBeforeEra(era);
@@ -548,6 +544,84 @@ export class CalendarEngine {
       remaining -= months[i];
     }
 
-    throw new Error('Invalid dayOfYear');
+    throw new Error("Invalid dayOfYear");
+  }
+
+  private normalizeDateParts(parts: DateParts): DateParts {
+    let { year, month, date, hour, minute, second, millisecond } = parts;
+
+    const totalMs = this.getMillisecondsFromTimeParts(
+      hour,
+      minute,
+      second,
+      millisecond
+    );
+
+    const millisPerDay = this.millisecondsPerDay;
+    const overflowDays = Math.floor(this.getDaysInMilliseconds(totalMs));
+    const timeParts = this.getTimePartsFromMilliseconds(this.normalizeModulo(totalMs, millisPerDay));
+
+    date += overflowDays;
+
+    ({ year, month } = this.normalizeMonth(year, month));
+
+    const MAX_ITER = 100;
+
+    const normalizeDayForward = () => {
+      for (let i = 0; i < MAX_ITER; i++) {
+        const daysInMonth = this.getDaysInMonth(year, month);
+        if (date <= daysInMonth) break;
+
+        date -= daysInMonth;
+        ({ year, month } = this.normalizeMonth(year, month + 1));
+
+        if (i === MAX_ITER - 1) {
+          throw new Error(
+            `normalizeDateParts: forward day normalization exceeded ${MAX_ITER} iterations`
+          );
+        }
+      }
+    };
+
+    const normalizeDayBackward = () => {
+      for (let i = 0; i < MAX_ITER; i++) {
+        if (date > 0) break;
+
+        ({ year, month } = this.normalizeMonth(year, month - 1));
+        date += this.getDaysInMonth(year, month);
+
+        if (i === MAX_ITER - 1) {
+          throw new Error(
+            `normalizeDateParts: backward day normalization exceeded ${MAX_ITER} iterations`
+          );
+        }
+      }
+    };
+
+    normalizeDayForward();
+    normalizeDayBackward();
+
+    return {
+      calendar: parts.calendar,
+      year,
+      month,
+      date,
+      ...timeParts,
+    };
+  }
+
+  private normalizeMonth(
+    year: number,
+    month: number
+  ): { year: number; month: number } {
+    const baseMonthCount = this.getMonthsPerYear();
+    const totalMonths = year * baseMonthCount + month;
+    year = Math.floor(totalMonths / baseMonthCount);
+    month = this.normalizeModulo(totalMonths, baseMonthCount);
+    return { year, month };
+  }
+
+  private normalizeModulo (val: number, base: number) {
+    return ((val % base) + base) % base;
   }
 }
