@@ -72,7 +72,7 @@ export class DateAPI {
   }
 
   public toString () {
-    return this.timestampToString(this.utcTimestampMilliseconds);
+    return new Date(this.getTime()).toString();
   }
 
   public valueOf () {
@@ -397,62 +397,44 @@ export class DateAPI {
   /* formatting */
 
   public toISOString (): string {
-    const dateParts = this.toUTCDateParts();
-    const {
-      year,
-      month,
-      date,
-      hour: hours,
-      minute: minutes,
-      second: seconds,
-    } = dateParts;
-
-    const yearStr = String(year);
-    const monthStr = String(month + 1).padStart(2, '0');
-    const dateStr = String(date).padStart(2, '0');
-    const hoursStr = String(hours).padStart(2, '0');
-    const minutesStr = String(minutes).padStart(2, '0');
-    const secondsStr = String(seconds).padStart(2, '0');
-    const milisecondsStr = String(dateParts.millisecond).padStart(3, '0');
-
-    return `${yearStr}-${monthStr}-${dateStr}T${hoursStr}:${minutesStr}:${secondsStr}.${milisecondsStr}Z`;
+    return new Date(this.getTime()).toISOString();
   }
 
   public toJSON (): string {
     return this.toISOString();
   }
 
+  public toDateString (): string {
+    return new Date(this.getTime()).toDateString();
+  }
+
+  public toTimeString (): string {
+    return new Date(this.getTime()).toTimeString();
+  }
+
+  public toUTCString (): string {
+    return new Date(this.getTime()).toUTCString();
+  }
+
   public toLocaleString (
     locales?: string | string[],
     options?: Intl.DateTimeFormatOptions
   ): string {
-    throw new Error('Override this method in a subclass');
-  }
-
-  public toDateString (): string {
-    throw new Error('Override this method in a subclass');
-  }
-
-  public toTimeString (): string {
-    throw new Error('Override this method in a subclass');
+    return new Date(this.getTime()).toLocaleString(locales, options);
   }
 
   public toLocaleDateString (
     locales?: string | string[],
     options?: Intl.DateTimeFormatOptions
   ): string {
-    throw new Error('Override this method in a subclass');
+    return new Date(this.getTime()).toLocaleDateString(locales, options);
   }
 
   public toLocaleTimeString (
     locales?: string | string[],
     options?: Intl.DateTimeFormatOptions
   ): string {
-    throw new Error('Override this method in a subclass');
-  }
-
-  public toUTCString (): string {
-    throw new Error('Override this method in a subclass');
+    return new Date(this.getTime()).toLocaleTimeString(locales, options);
   }
 
   /* custom */
@@ -551,7 +533,16 @@ export class DateAPI {
 
   protected getDatePartsFromTimestamp (timestampMs: number): DateParts {
     if (isNaN(timestampMs)) {
-      throw new TypeError('Invalid Date');
+      return {
+        calendar: 'gregorian',
+        year: NaN,
+        month: NaN,
+        date: NaN,
+        hour: NaN,
+        minute: NaN,
+        second: NaN,
+        millisecond: NaN,
+      };
     }
 
     const date = new Date(timestampMs);
@@ -590,48 +581,8 @@ export class DateAPI {
     );
   }
 
-  protected timestampToString (timestampMs: number): string {
-    if (typeof timestampMs != 'number' || isNaN(timestampMs)) {
-      return 'Invalid Date';
-    }
-
-    const dateParts = this.getDatePartsFromTimestamp(timestampMs);
-
-    const {
-      year,
-      month,
-      date: dateNumber,
-      hour: hours,
-      minute: minutes,
-      second: seconds,
-    } = dateParts;
-
-    const yearStr = String(year);
-    const monthStr = String(month + 1).padStart(2, '0');
-    const dateStr = String(dateNumber).padStart(2, '0');
-    const hoursStr = String(hours).padStart(2, '0');
-    const minutesStr = String(minutes).padStart(2, '0');
-    const secondsStr = String(seconds).padStart(2, '0');
-    const timezoneOffsetMinutes = this.getTimezoneOffset();
-    const timezoneOffsetHours = Math.floor(
-      Math.abs(timezoneOffsetMinutes) / 60
-    );
-    const timezoneOffsetMinutesRemainder = Math.abs(timezoneOffsetMinutes) % 60;
-    const timezoneOffsetSign = timezoneOffsetMinutes < 0 ? '+' : '-';
-    const timezoneOffsetStr = `${timezoneOffsetSign}${String(
-      timezoneOffsetHours
-    ).padStart(2, '0')}:${String(timezoneOffsetMinutesRemainder).padStart(
-      2,
-      '0'
-    )}`;
-
-    const timezoneOffset = timezoneOffsetMinutes
-      ? `GMT${timezoneOffsetStr}`
-      : '';
-
-    const dateString = `${yearStr}-${monthStr}-${dateStr} ${hoursStr}:${minutesStr}:${secondsStr} ${timezoneOffset}`;
-
-    return dateString;
+  protected isNaN(): boolean {
+    return isNaN(this.getTime());
   }
 
   /* utils */

@@ -1,6 +1,7 @@
 import constants from "./constants";
 import utils from "./utils";
 import Date13Dictionary from "./intl/dictionary";
+import { CalendarEngine } from "./calendar-engine";
 
 export interface Date13RangeFormatPart {
   type: Intl.DateTimeFormatPartTypes;
@@ -12,7 +13,10 @@ export class Date13TimeFormat {
   private locale: string;
   private options: Intl.DateTimeFormatOptions;
 
-  constructor(locale: string | readonly string[] = "en", options: Intl.DateTimeFormatOptions = {}) {
+  constructor(
+    locale: string | readonly string[] = "en",
+    options: Intl.DateTimeFormatOptions = {}
+  ) {
     const canonicalLocales = Intl.getCanonicalLocales(locale);
 
     this.locale = canonicalLocales[0] || "en";
@@ -68,7 +72,7 @@ export class Date13TimeFormat {
     return formattedRTL;
   }
 
-  public formatToParts(dateParam: Date | any): Intl.DateTimeFormatPart[] {
+  public formatToParts(dateParam: Date | { getTime(): number }): Intl.DateTimeFormatPart[] {
     this.validateDateParam(dateParam);
 
     if (dateParam instanceof Date) {
@@ -80,7 +84,8 @@ export class Date13TimeFormat {
     const opts = this.resolvedOptions();
     const parts: Intl.DateTimeFormatPart[] = [];
 
-    const { year, month, date, hour, minute, second } = dateParam.toDateParts();
+    const { year, month, date, hour, minute, second } =
+      CalendarEngine.Ordo13.toDateParts(dateParam.getTime());
 
     const locale = this.locale;
     const useGenitive = Date13TimeFormat.isGenitiveOrder(opts);
@@ -275,8 +280,7 @@ export class Date13TimeFormat {
   private validateDateParam(date: any): void {
     if (
       (!!date && typeof date !== "object") ||
-      typeof date.getTime !== "function" ||
-      typeof date.valueOf !== "function"
+      typeof date.getTime !== "function"
     ) {
       throw new TypeError("Argument must be a Date type");
     }

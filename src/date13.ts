@@ -135,6 +135,10 @@ export class Date13 extends DateAPI {
    * @returns {string} Date13 string representation
    */
   public toString(): string {
+    if (this.isNaN()) {
+      return "Invalid Date";
+    }
+
     return new Date13TimeFormat(undefined, {
       weekday: "short",
       year: "numeric",
@@ -152,6 +156,10 @@ export class Date13 extends DateAPI {
    * @returns {string} Date13 string representation
    */
   public toDateString(): string {
+    if (this.isNaN()) {
+      return "Invalid Date";
+    }
+
     return this.toGregorian().toDateString();
   }
 
@@ -160,6 +168,10 @@ export class Date13 extends DateAPI {
    * @returns {string} Date13 string representation
    */
   public toTimeString(): string {
+    if (this.isNaN()) {
+      return "Invalid Date";
+    }
+
     return this.toGregorian().toTimeString();
   }
 
@@ -168,6 +180,10 @@ export class Date13 extends DateAPI {
    * @returns {string} Date13 string representation
    */
   public toUTCString(): string {
+    if (this.isNaN()) {
+      return "Invalid Date";
+    }
+
     return this.toGregorian().toUTCString();
   }
 
@@ -179,6 +195,10 @@ export class Date13 extends DateAPI {
     locales?: string | readonly string[],
     options?: Intl.DateTimeFormatOptions
   ): string {
+    if (this.isNaN()) {
+      return "Invalid Date";
+    }
+
     return new Date13TimeFormat(locales, {
       ...options,
       year: options?.year ?? "numeric",
@@ -195,6 +215,10 @@ export class Date13 extends DateAPI {
     locales?: string | string[],
     options?: Intl.DateTimeFormatOptions
   ): string {
+    if (this.isNaN()) {
+      return "Invalid Date";
+    }
+
     return new Intl.DateTimeFormat(locales, {
       ...options,
       hour: options?.hour ?? "2-digit",
@@ -211,6 +235,10 @@ export class Date13 extends DateAPI {
     locales?: string | readonly string[],
     options?: Intl.DateTimeFormatOptions
   ): string {
+    if (this.isNaN()) {
+      return "Invalid Date";
+    }
+
     return new Date13TimeFormat(locales, options).format(this);
   }
 
@@ -368,6 +396,10 @@ export class Date13 extends DateAPI {
    * @returns {string} Date13-ISO string
    */
   public static toDate13ISOString(date: Date13): string {
+    if (isNaN(date.getTime())) {
+      throw RangeError('Invalid time value');
+    }
+
     if (!(date instanceof Date13)) {
       throw new TypeError("Argument must be a Date type");
     }
