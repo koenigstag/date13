@@ -1,7 +1,7 @@
 import { CalendarEngine } from './calendar-engine';
 import constants from './constants';
 import { DateAPI } from './date.api';
-import { getReplacersFromDate } from './format';
+import { formatDate, getReplacersFromDate } from './format';
 import { DateParts } from './types';
 import utils from './utils';
 
@@ -342,18 +342,7 @@ export class Date13 extends DateAPI {
       throw new TypeError('Argument must be a Date type');
     }
 
-    let transformedPattern = String(constants.isoPattern);
-
-    const replacers = getReplacersFromDate(date);
-
-    for (const [key, val] of Object.entries(replacers)) {
-      transformedPattern = transformedPattern.replace(
-        new RegExp(key, 'g'),
-        String(val.bind(replacers)())
-      );
-    }
-
-    return transformedPattern;
+    return formatDate(date, constants.isoPattern);
   }
 
   /**

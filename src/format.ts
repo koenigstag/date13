@@ -78,3 +78,42 @@ export function getReplacersFromDate (date: Date) {
 
   return replacers;
 }
+
+export function formatDate (date: Date, format: string) {
+  const replacers = getReplacersFromDate(date);
+
+  const transformed = replaceTokens(format, replacers);
+
+  return transformed;
+}
+
+export function replaceTokens (
+  format: string,
+  replacers: Record<string, () => string | number>
+) {
+  const tokens = Object.keys(replacers).sort((a, b) => b.length - a.length);
+
+  let result = '';
+  let i = 0;
+
+  while (i < format.length) {
+    let matched = false;
+
+    for (const token of tokens) {
+      if (format.startsWith(token, i)) {
+        const value = String(replacers[token].bind(replacers)());
+        result += value;
+        i += token.length;
+        matched = true;
+        break;
+      }
+    }
+
+    if (!matched) {
+      result += format[i];
+      i += 1;
+    }
+  }
+
+  return result;
+}
