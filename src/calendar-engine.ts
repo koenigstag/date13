@@ -84,9 +84,13 @@ export const GregorianCalendarConfig: CalendarConfig = {
 };
 
 function isGregorianLeapYear(year: number): boolean {
+  // Gregorian leap year rules
   if (year % 4 !== 0) return false;
   if (year % 100 === 0 && year % 400 !== 0) return false;
+
+  // Amosov's rule for Gregorian leap years
   if (year % 3200 === 0 && year % 12800 !== 0) return false;
+
   return true;
 }
 
