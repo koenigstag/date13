@@ -1,5 +1,12 @@
 import { DateParts } from './types';
 
+/**
+ * DateAPI is a class that provides an interface satisfying JS native Date interface with its full functionality written in TypeScript.
+ * It is a wrapper around the native Date object and provides a consistent API for working with dates and times.
+ *
+ * It can be used as an open-source replacement for the native Date object.
+ * Also it can be extended to support different calendars and date formats - you can override the parse and UTC methods to implement your own.
+ */
 export class DateAPI {
   protected utcTimestampMilliseconds: number = NaN;
   protected timezoneOffsetMinutes: number = 0;
@@ -16,12 +23,14 @@ export class DateAPI {
     this.updateDatePartsCache('constructor');
   }
 
-  /** can be overriden in a subclass */
+  /* core methods */
+
+  /** Can be overriden in a subclass */
   protected parse (dateString: string): number {
     return Date.parse(dateString);
   }
 
-  /** can be overriden in a subclass */
+  /** Can be overriden in a subclass */
   protected UTC (
     year: number,
     monthIndex: number = 0,
@@ -31,45 +40,14 @@ export class DateAPI {
     seconds: number = 0,
     ms: number = 0
   ): number {
-    return Date.UTC(year, monthIndex, date, hours, minutes, seconds, ms);
+    return Date.UTC(year ?? 1970, monthIndex, date, hours, minutes, seconds, ms);
   }
 
   public static now (): number {
     return Date.now();
   }
 
-  /* can be overriden in a subclass */
-  protected getWeekDay (timestampMs: number, type: 'local' | 'UTC'): number {
-    const date = new Date(timestampMs);
-
-    const weekday = date.getDay();
-    const utcWeekday = date.getUTCDay();
-
-    return type === 'local' ? weekday : utcWeekday;
-  }
-
-  /* essential */
-
-  public setTime (timestampMs: number): number {
-    this.utcTimestampMilliseconds = timestampMs;
-
-    this.updateDatePartsCache('setTime');
-
-    return this.utcTimestampMilliseconds;
-  }
-
-  protected updateDatePartsCache (source: string) {
-    this.utcDatePartsCache = this.getDatePartsFromTimestamp(this.getTime());
-    this.localDatePartsCache = this.getDatePartsFromTimestamp(
-      this.getLocalTime()
-    );
-  }
-
   /* system methods */
-
-  public getTime () {
-    return this.utcTimestampMilliseconds ?? NaN;
-  }
 
   public toString () {
     return new Date(this.getTime()).toString();
@@ -93,8 +71,12 @@ export class DateAPI {
 
   /* getters */
 
+  public getTime () {
+    return this.utcTimestampMilliseconds ?? NaN;
+  }
+
   public getTimezoneOffset () {
-    if (this.timezoneOffsetMinutes === undefined) {
+    if (typeof this.timezoneOffsetMinutes !== 'number') {
       this.timezoneOffsetMinutes = this.getDefaultTimezoneOffset();
     }
 
@@ -195,17 +177,19 @@ export class DateAPI {
 
   /* setters */
 
-  protected setTimezoneOffset (timezoneOffset: number) {
-    this.timezoneOffsetMinutes = timezoneOffset;
+  public setTime (timestampMs: number): number {
+    this.utcTimestampMilliseconds = timestampMs;
 
-    this.updateDatePartsCache('setTimezoneOffset');
+    this.updateDatePartsCache('setTime');
+
+    return this.utcTimestampMilliseconds;
   }
 
   public setDate (date: number): number {
     const dateParts = this.toDateParts();
     const timestamp = this.getTimestampFromDateParts({
       ...dateParts,
-      date,
+      date: date ?? dateParts.date,
     });
     this.setTime(timestamp);
 
@@ -216,7 +200,7 @@ export class DateAPI {
     const dateParts = this.toUTCDateParts();
     const timestamp = this.getTimestampFromDateParts({
       ...dateParts,
-      date,
+      date: date ?? dateParts.date,
     });
     this.setTime(timestamp);
 
@@ -227,7 +211,7 @@ export class DateAPI {
     const dateParts = this.toDateParts();
     const timestamp = this.getTimestampFromDateParts({
       ...dateParts,
-      month,
+      month: month ?? dateParts.month,
     });
     this.setTime(timestamp);
 
@@ -238,7 +222,7 @@ export class DateAPI {
     const dateParts = this.toUTCDateParts();
     const timestamp = this.getTimestampFromDateParts({
       ...dateParts,
-      month,
+      month: month ?? dateParts.month,
     });
     this.setTime(timestamp);
 
@@ -249,7 +233,7 @@ export class DateAPI {
     const dateParts = this.toDateParts();
     const timestamp = this.getTimestampFromDateParts({
       ...dateParts,
-      year,
+      year: year ?? dateParts.year,
     });
     this.setTime(timestamp);
 
@@ -260,7 +244,7 @@ export class DateAPI {
     const dateParts = this.toUTCDateParts();
     const timestamp = this.getTimestampFromDateParts({
       ...dateParts,
-      year,
+      year: year ?? dateParts.year,
     });
     this.setTime(timestamp);
 
@@ -285,10 +269,10 @@ export class DateAPI {
     const dateParts = this.toDateParts();
     const timestamp = this.getTimestampFromDateParts({
       ...dateParts,
-      hour: hours,
-      minute: minutes || dateParts.minute,
-      second: seconds || dateParts.second,
-      millisecond: miliseconds || dateParts.millisecond,
+      hour: hours ?? dateParts.hour,
+      minute: minutes ?? dateParts.minute,
+      second: seconds ?? dateParts.second,
+      millisecond: miliseconds ?? dateParts.millisecond,
     });
     this.setTime(timestamp);
 
@@ -304,10 +288,10 @@ export class DateAPI {
     const dateParts = this.toUTCDateParts();
     const timestamp = this.getTimestampFromDateParts({
       ...dateParts,
-      hour: utcHours,
-      minute: utcMinutes || dateParts.minute,
-      second: utcSeconds || dateParts.second,
-      millisecond: utcMiliseconds || dateParts.millisecond,
+      hour: utcHours ?? dateParts.hour,
+      minute: utcMinutes ?? dateParts.minute,
+      second: utcSeconds ?? dateParts.second,
+      millisecond: utcMiliseconds ?? dateParts.millisecond,
     });
     this.setTime(timestamp);
 
@@ -322,9 +306,9 @@ export class DateAPI {
     const dateParts = this.toDateParts();
     const timestamp = this.getTimestampFromDateParts({
       ...dateParts,
-      minute: minutes,
-      second: seconds || dateParts.second,
-      millisecond: miliseconds || dateParts.millisecond,
+      minute: minutes ?? dateParts.minute,
+      second: seconds ?? dateParts.second,
+      millisecond: miliseconds ?? dateParts.millisecond,
     });
     this.setTime(timestamp);
 
@@ -339,9 +323,9 @@ export class DateAPI {
     const dateParts = this.toUTCDateParts();
     const timestamp = this.getTimestampFromDateParts({
       ...dateParts,
-      minute: utcMinutes,
-      second: utcSeconds || dateParts.second,
-      millisecond: utcMiliseconds || dateParts.millisecond,
+      minute: utcMinutes ?? dateParts.minute,
+      second: utcSeconds ?? dateParts.second,
+      millisecond: utcMiliseconds ?? dateParts.millisecond,
     });
     this.setTime(timestamp);
 
@@ -352,8 +336,8 @@ export class DateAPI {
     const dateParts = this.toDateParts();
     const timestamp = this.getTimestampFromDateParts({
       ...dateParts,
-      second: seconds,
-      millisecond: miliseconds || dateParts.millisecond,
+      second: seconds ?? dateParts.second,
+      millisecond: miliseconds ?? dateParts.millisecond,
     });
     this.setTime(timestamp);
 
@@ -364,8 +348,8 @@ export class DateAPI {
     const dateParts = this.toUTCDateParts();
     const timestamp = this.getTimestampFromDateParts({
       ...dateParts,
-      second: utcSeconds,
-      millisecond: utcMiliseconds || dateParts.millisecond,
+      second: utcSeconds ?? dateParts.second,
+      millisecond: utcMiliseconds ?? dateParts.millisecond,
     });
     this.setTime(timestamp);
 
@@ -376,7 +360,7 @@ export class DateAPI {
     const dateParts = this.toDateParts();
     const timestamp = this.getTimestampFromDateParts({
       ...dateParts,
-      millisecond: miliseconds,
+      millisecond: miliseconds ?? dateParts.millisecond,
     });
     this.setTime(timestamp);
 
@@ -387,7 +371,7 @@ export class DateAPI {
     const dateParts = this.toUTCDateParts();
     const timestamp = this.getTimestampFromDateParts({
       ...dateParts,
-      millisecond: miliseconds,
+      millisecond: miliseconds ?? dateParts.millisecond,
     });
     this.setTime(timestamp);
 
@@ -439,11 +423,8 @@ export class DateAPI {
 
   /* custom */
 
-  protected getLocalTime () {
-    return this.calculateLocalFromUTCTimestamp(
-      this.utcTimestampMilliseconds,
-      this.getTimezoneOffset()
-    );
+  public isValid(): boolean {
+    return isNaN(this.getTime());
   }
 
   public toDateParts (): DateParts {
@@ -452,6 +433,32 @@ export class DateAPI {
 
   public toUTCDateParts (): DateParts {
     return this.utcDatePartsCache;
+  }
+
+  protected getWeekDay (timestampMs: number, type: 'local' | 'UTC'): number {
+    const date = new Date(timestampMs);
+
+    return type === 'local' ? date.getDay() : date.getUTCDay();
+  }
+
+  protected updateDatePartsCache (source: string) {
+    this.utcDatePartsCache = this.getDatePartsFromTimestamp(this.getTime());
+    this.localDatePartsCache = this.getDatePartsFromTimestamp(
+      this.getLocalTime()
+    );
+  }
+
+  protected setTimezoneOffset (timezoneOffset: number) {
+    this.timezoneOffsetMinutes = timezoneOffset;
+
+    this.updateDatePartsCache('setTimezoneOffset');
+  }
+
+  protected getLocalTime () {
+    return this.calculateLocalFromUTCTimestamp(
+      this.utcTimestampMilliseconds,
+      this.getTimezoneOffset()
+    );
   }
 
   protected getTimestampFromConstructorParams (...params: any[]): number {
@@ -531,6 +538,7 @@ export class DateAPI {
     return NaN;
   }
 
+  /** Can be overriden in a subclass */
   protected getDatePartsFromTimestamp (timestampMs: number): DateParts {
     if (isNaN(timestampMs)) {
       return {
@@ -571,7 +579,7 @@ export class DateAPI {
 
   protected getTimestampFromDateParts (dateParts: Partial<DateParts>): number {
     return this.UTC(
-      dateParts.year ?? 1970,
+      dateParts.year as number,
       dateParts.month,
       dateParts.date,
       dateParts.hour,
@@ -579,10 +587,6 @@ export class DateAPI {
       dateParts.second,
       dateParts.millisecond
     );
-  }
-
-  protected isNaN(): boolean {
-    return isNaN(this.getTime());
   }
 
   /* utils */
@@ -631,12 +635,3 @@ export class DateAPI {
     return timestampMs + timezoneOffsetInMilliseconds;
   }
 }
-
-/*
-// check if DateAPI satisfies Date interface
-function fromDate (d: Date) {
-  return new DateAPI().setTime(d.getTime());
-}
-
-fromDate(new DateAPI());
- */

@@ -46,7 +46,7 @@ export class Date13 extends DateAPI {
   ): number {
     const timestmap = CalendarEngine.Ordo13.fromDateParts({
       calendar: constants.date13CalendarName,
-      year,
+      year: year ?? 1970,
       month: monthIndex,
       date,
       hour,
@@ -135,7 +135,7 @@ export class Date13 extends DateAPI {
    * @returns {string} Date13 string representation
    */
   public toString(): string {
-    if (this.isNaN()) {
+    if (this.isValid()) {
       return "Invalid Date";
     }
 
@@ -156,7 +156,7 @@ export class Date13 extends DateAPI {
    * @returns {string} Date13 string representation
    */
   public toDateString(): string {
-    if (this.isNaN()) {
+    if (this.isValid()) {
       return "Invalid Date";
     }
 
@@ -168,7 +168,7 @@ export class Date13 extends DateAPI {
    * @returns {string} Date13 string representation
    */
   public toTimeString(): string {
-    if (this.isNaN()) {
+    if (this.isValid()) {
       return "Invalid Date";
     }
 
@@ -180,7 +180,7 @@ export class Date13 extends DateAPI {
    * @returns {string} Date13 string representation
    */
   public toUTCString(): string {
-    if (this.isNaN()) {
+    if (this.isValid()) {
       return "Invalid Date";
     }
 
@@ -195,7 +195,7 @@ export class Date13 extends DateAPI {
     locales?: string | readonly string[],
     options?: Intl.DateTimeFormatOptions
   ): string {
-    if (this.isNaN()) {
+    if (this.isValid()) {
       return "Invalid Date";
     }
 
@@ -215,7 +215,7 @@ export class Date13 extends DateAPI {
     locales?: string | string[],
     options?: Intl.DateTimeFormatOptions
   ): string {
-    if (this.isNaN()) {
+    if (this.isValid()) {
       return "Invalid Date";
     }
 
@@ -235,7 +235,7 @@ export class Date13 extends DateAPI {
     locales?: string | readonly string[],
     options?: Intl.DateTimeFormatOptions
   ): string {
-    if (this.isNaN()) {
+    if (this.isValid()) {
       return "Invalid Date";
     }
 
